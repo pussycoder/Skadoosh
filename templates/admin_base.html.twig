@@ -45,9 +45,13 @@
         }
 
         body {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background-image: url('{{ asset('Pattern2.png') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             background-attachment: fixed;
             margin: 0;
+            overflow-x: hidden;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             font-size: 14px;
             line-height: 1.6;
@@ -151,7 +155,27 @@
             background: white;
             border-radius: 0.75rem;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .dataTables_wrapper .dataTables_scroll,
+        .dataTables_wrapper .dataTables_scrollBody {
+            max-width: 100%;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .dataTables_wrapper .dataTables_scrollHeadInner,
+        .dataTables_wrapper .dataTables_scrollHeadInner table,
+        .dataTables_wrapper .dataTables_scrollBody table {
+            width: 100% !important;
+        }
+
+        .dataTables_wrapper table.dataTable {
+            min-width: 760px;
         }
 
         /* Force visibility for all text in DataTables flex containers - AGGRESSIVE */
@@ -499,7 +523,7 @@
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
-                width: 280px;
+                width: min(86vw, 300px);
                 z-index: 1000;
             }
             
@@ -508,8 +532,14 @@
             }
             
             .main-content {
-                margin-left: 0;
-                width: 100%;
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100vw;
+            }
+
+            .sf-toolbar,
+            #sfToolbarMainContent {
+                display: none !important;
             }
 
             /* Mobile-friendly top nav */
@@ -541,7 +571,7 @@
         @media (max-width: 640px) {
             /* Extra small screens */
             .sidebar {
-                width: 100%;
+                width: min(88vw, 300px);
             }
 
             .top-nav {
@@ -1195,6 +1225,20 @@
                 </svg>
                 <span>Orders</span>
             </a>
+
+            <a href="{{ path('app_customization_requests_index') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg {% if app.request.get('_route') starts with 'app_customization_requests' %}active{% endif %}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v3M12 18v3M4.2 7.5l2.6 1.5M17.2 15l2.6 1.5M4.2 16.5 6.8 15M17.2 9l2.6-1.5M9 12a3 3 0 106 0 3 3 0 00-6 0z"/>
+                </svg>
+                <span>Customization Requests</span>
+            </a>
+
+            <a href="{{ path('app_page') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/>
+                </svg>
+                <span>Public Site</span>
+            </a>
             
             {% if 'ROLE_ADMIN' in app.user.roles %}
                 <!-- Admin-Only Menu Items -->
@@ -1224,7 +1268,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="main-content ml-64 transition-all duration-300" id="main-content">
+    <div class="main-content transition-all duration-300" id="main-content">
         <!-- Top Navigation -->
         <nav class="top-nav sticky top-0 z-40">
             <div class="px-4 sm:px-6 py-3 sm:py-4">
@@ -1315,6 +1359,12 @@
                                     </svg>
                                     My Profile
                                 </a>
+                                <a href="{{ path('app_page') }}" class="flex items-center px-4 py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors" style="color: #334155 !important; font-weight: 500;">
+                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #64748b;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/>
+                                    </svg>
+                                    Visit Public Site
+                                </a>
                                 <a href="{{ path('app_admin_dashboard') }}" class="flex items-center px-4 py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors" style="color: #334155 !important; font-weight: 500;">
                                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #64748b;">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -1387,7 +1437,7 @@
 
         // Load sidebar state from localStorage
         const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-        if (isCollapsed) {
+        if (isCollapsed && window.innerWidth > 768) {
             sidebar.classList.add('collapsed');
             mainContent.classList.add('collapsed');
         }
@@ -1423,6 +1473,18 @@
             });
         }
 
+        // Close sidebar after choosing a link on phones.
+        document.querySelectorAll('.sidebar .nav-item').forEach((link) => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('mobile-open');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.remove('active');
+                    }
+                }
+            });
+        });
+
         // Close sidebar when clicking outside (mobile)
         if (window.innerWidth <= 768) {
             document.addEventListener('click', (e) => {
@@ -1444,6 +1506,9 @@
                 if (sidebarOverlay) {
                     sidebarOverlay.classList.remove('active');
                 }
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('collapsed');
             }
         });
         
@@ -1481,6 +1546,7 @@
         $(document).ready(function() {
             $('.datatable').DataTable({
                 responsive: true,
+                scrollX: true,
                 pageLength: 10,
                 lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
                 language: {
@@ -1591,6 +1657,17 @@
                         productSearch.dispatchEvent(new Event('input', { bubbles: true }));
                         return;
                     }
+                    if (window.jQuery && $.fn.DataTable) {
+                        const tables = $.fn.dataTable.tables({ visible: true, api: true });
+                        if (tables && tables.context && tables.context.length) {
+                            tables.search(global.value).draw();
+                            return;
+                        }
+                    }
+                    document.querySelectorAll('table tbody tr').forEach((row) => {
+                        const query = global.value.trim().toLowerCase();
+                        row.style.display = !query || row.textContent.toLowerCase().includes(query) ? '' : 'none';
+                    });
                     // fallback: document-level event for other pages
                     document.dispatchEvent(new CustomEvent('global-search', { detail: global.value }));
                 }, 300);

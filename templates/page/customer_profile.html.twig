@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile - SKADOOSH{% endblock %}
+
+{% block stylesheets %}
+<style>
+  body {
+    background-image: url('{{ asset('Pattern.png') }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  .profile-hero {
+    background: linear-gradient(135deg, #080d18 0%, #1f2937 55%, #080d18 100%);
+  }
+  .profile-card {
+    background: rgba(255,255,255,0.96);
+    border: 1px solid rgba(148,163,184,0.35);
+    box-shadow: 0 20px 60px rgba(15,23,42,0.08);
+  }
+  .profile-avatar {
+    width: 6rem;
+    height: 6rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #7a0000, #111827);
+    color: #ffffff !important;
+    font-size: 2.25rem;
+    font-weight: 900;
+    box-shadow: 0 16px 34px rgba(122,0,0,0.22);
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="pb-16">
+  <header class="profile-hero">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <p class="text-xs font-extrabold uppercase tracking-[0.28em] mb-3" style="color:rgba(226,232,240,0.86) !important;">Customer profile</p>
+      <h1 class="text-4xl sm:text-5xl font-extrabold" style="color:#ffffff !important;">My Skadoosh Account</h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed" style="color:rgba(226,232,240,0.88) !important;">View your orders, customization requests, and account actions in one place.</p>
+    </div>
+  </header>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <aside class="lg:col-span-4">
+      <section class="profile-card rounded-3xl p-6 text-center">
+        <div class="profile-avatar mx-auto">{{ (user.fullName ?: user.username)|slice(0, 1)|upper }}</div>
+        <h2 class="mt-5 text-2xl font-extrabold">{{ user.fullName ?: user.username }}</h2>
+        <p class="mt-1 text-sm" style="color:#64748b !important;">{{ user.email ?: user.username }}</p>
+        <span class="inline-flex mt-4 rounded-full px-3 py-1 text-xs font-extrabold" style="background:rgba(122,0,0,0.08); color:#7a0000 !important;">
+          {% if 'ROLE_ADMIN' in user.roles %}Administrator{% elseif 'ROLE_STAFF' in user.roles %}Staff Member{% else %}Customer{% endif %}
+        </span>
+      </section>
+
+      <section class="profile-card rounded-3xl p-5 mt-5">
+        <h3 class="text-lg font-extrabold">Quick actions</h3>
+        <div class="mt-4 grid gap-3">
+          <a href="{{ path('app_my_orders') }}" class="btn-primary">My Orders</a>
+          <a href="{{ path('app_my_customization_requests') }}" class="btn-secondary">My Customization Requests</a>
+          <a href="{{ path('app_shop') }}" class="btn-secondary">Shop Products</a>
+          <a href="{{ path('app_cart') }}" class="btn-secondary">View Cart</a>
+          <a href="{{ path('app_profile_edit') }}" class="btn-secondary">Edit Account</a>
+        </div>
+      </section>
+    </aside>
+
+    <main class="lg:col-span-8 space-y-5">
+      <section class="profile-card rounded-3xl p-5 sm:p-6">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-2xl font-extrabold">Recent Orders</h2>
+          <a href="{{ path('app_my_orders') }}" class="text-sm font-bold underline" style="color:#7a0000 !important;">View all</a>
+        </div>
+        <div class="mt-5 space-y-3">
+          {% for order in orders|slice(0, 3) %}
+            <article class="rounded-2xl border border-slate-200 bg-white p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <strong>Order #{{ order.id }}</strong>
+                  <p class="mt-1 text-xs" style="color:#64748b !important;">{{ order.createdAt ? order.createdAt|date('M d, Y g:i A') : '' }}</p>
+                </div>
+                <span class="rounded-full px-3 py-1 text-xs font-extrabold" style="background:rgba(122,0,0,0.08); color:#7a0000 !important;">{{ order.status }}</span>
+              </div>
+              <p class="mt-3 text-sm whitespace-pre-line" style="color:#334155 !important;">{{ order.orderedProducts }}</p>
+            </article>
+          {% else %}
+            <p class="rounded-2xl border border-dashed border-slate-300 p-5 text-sm" style="color:#64748b !important;">No orders yet.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="profile-card rounded-3xl p-5 sm:p-6">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-2xl font-extrabold">Customization Requests</h2>
+          <a href="{{ path('app_my_customization_requests') }}" class="text-sm font-bold underline" style="color:#7a0000 !important;">View all</a>
+        </div>
+        <div class="mt-5 space-y-3">
+          {% for request in customizationRequests|slice(0, 3) %}
+            <article class="rounded-2xl border border-slate-200 bg-white p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <strong>{{ request.productType }}</strong>
+                  <p class="mt-1 text-xs" style="color:#64748b !important;">{{ request.createdAt ? request.createdAt|date('M d, Y g:i A') : '' }}</p>
+                </div>
+                <span class="rounded-full px-3 py-1 text-xs font-extrabold" style="background:rgba(122,0,0,0.08); color:#7a0000 !important;">{{ request.status }}</span>
+              </div>
+              {% if request.designSnapshot %}
+                <img src="{{ request.designSnapshot }}" alt="Submitted mockup" class="mt-3 w-full max-h-56 object-contain rounded-xl bg-slate-50">
+              {% endif %}
+              {% if request.staffResponse %}
+                <p class="mt-3 rounded-xl bg-slate-50 p-3 text-sm" style="color:#334155 !important;"><strong>Staff:</strong> {{ request.staffResponse }}</p>
+              {% endif %}
+            </article>
+          {% else %}
+            <p class="rounded-2xl border border-dashed border-slate-300 p-5 text-sm" style="color:#64748b !important;">No customization requests yet.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+  </div>
+</section>
+{% endblock %}

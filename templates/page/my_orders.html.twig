@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Orders - SKADOOSH{% endblock %}
+
+{% block stylesheets %}
+<style>
+  body {
+    background-image: url('{{ asset('Pattern.png') }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  .orders-hero {
+    background: linear-gradient(135deg, #080d18 0%, #1f2937 55%, #080d18 100%);
+  }
+  .orders-card {
+    background: rgba(255,255,255,0.96);
+    border: 1px solid rgba(148,163,184,0.35);
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="pb-16">
+  <header class="orders-hero">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <p class="text-xs font-extrabold uppercase tracking-[0.28em] mb-3" style="color:rgba(226,232,240,0.86) !important;">Account</p>
+      <h1 class="text-4xl sm:text-5xl font-extrabold" style="color:#ffffff !important;">My Orders</h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed" style="color:rgba(226,232,240,0.88) !important;">Track orders placed from the Skadoosh web checkout.</p>
+    </div>
+  </header>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 pt-10">
+    {% if orders is empty %}
+      <div class="orders-card rounded-3xl p-8 text-center">
+        <h2 class="text-2xl font-extrabold">No orders yet</h2>
+        <p class="mt-2 text-sm" style="color:#64748b !important;">Add products to your cart and checkout to see receipts here.</p>
+        <a href="{{ path('app_shop') }}" class="btn-primary mt-6">Shop now</a>
+      </div>
+    {% else %}
+      <div class="space-y-4">
+        {% for order in orders %}
+          <article class="orders-card rounded-2xl p-5 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div>
+                <h2 class="text-xl font-extrabold">Order #{{ order.id }}</h2>
+                <p class="mt-1 text-xs" style="color:#64748b !important;">{{ order.createdAt ? order.createdAt|date('M d, Y g:i A') : '' }}</p>
+              </div>
+              <span class="inline-flex rounded-full px-3 py-1 text-xs font-extrabold" style="background:rgba(122,0,0,0.08); color:#7a0000 !important;">{{ order.status }}</span>
+            </div>
+
+            <p class="mt-4 text-sm leading-relaxed whitespace-pre-line" style="color:#334155 !important;">{{ order.orderedProducts }}</p>
+
+            <div class="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-slate-200 pt-4">
+              <strong style="color:#7a0000 !important;">₱{{ order.totalPrice|number_format(2, '.', ',') }}</strong>
+              <a href="{{ path('app_order_receipt', {'id': order.id}) }}" class="btn-secondary">View receipt</a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

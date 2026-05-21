@@ -22,7 +22,10 @@
         }
 
         body {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background-image: url('{{ asset('Pattern.png') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             background-attachment: fixed;
             margin: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
@@ -280,101 +283,679 @@
             border-radius: 999px;
             opacity: 0.95;
         }
+
+        .sk-site-header,
+        .sk-footer,
+        .sk-panel,
+        .sk-modal {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+
+        .sk-site-header {
+            background: rgba(8, 13, 24, 0.96);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+        }
+
+        .sk-nav-link,
+        .sk-icon-button {
+            color: #f8fafc !important;
+        }
+
+        .sk-site-header a.sk-nav-link,
+        .sk-site-header a:not(.btn-primary).sk-nav-link {
+            color: #f8fafc !important;
+        }
+
+        .sk-nav-link {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .sk-nav-link:hover {
+            color: #ffffff !important;
+        }
+
+        .sk-icon-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.35rem;
+            height: 2.35rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff !important;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 22px rgba(0, 0, 0, 0.22);
+        }
+
+        .sk-site-header .sk-icon-button,
+        .sk-site-header a.sk-icon-button,
+        .sk-site-header button.sk-icon-button {
+            color: #ffffff !important;
+            opacity: 1 !important;
+        }
+
+        .sk-site-header .sk-icon-button svg,
+        .sk-site-header .sk-icon-button svg path {
+            color: #ffffff !important;
+            stroke: #ffffff !important;
+        }
+
+        .sk-icon-button:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.52);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 10px 26px rgba(0, 0, 0, 0.28);
+        }
+
+        .sk-badge {
+            position: absolute;
+            top: -0.35rem;
+            right: -0.35rem;
+            min-width: 1.15rem;
+            height: 1.15rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 0.25rem;
+            background: #dc2626;
+            color: #ffffff !important;
+            font-size: 0.65rem;
+            font-weight: 800;
+        }
+
+        .sk-panel-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            background: rgba(2, 6, 23, 0.58);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 180ms ease;
+        }
+
+        .sk-panel-backdrop.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sk-panel {
+            position: fixed;
+            z-index: 90;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 24px 80px rgba(2, 6, 23, 0.24);
+            transition: transform 220ms ease;
+        }
+
+        .sk-panel-left {
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: min(24rem, 90vw);
+            transform: translateX(-105%);
+        }
+
+        .sk-panel-right {
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: min(28rem, 92vw);
+            transform: translateX(105%);
+        }
+
+        .sk-panel-top {
+            top: 0;
+            left: 0;
+            right: 0;
+            transform: translateY(-105%);
+        }
+
+        .sk-panel.is-open {
+            transform: translate(0, 0);
+        }
+
+        .sk-modal {
+            position: fixed;
+            z-index: 95;
+            left: 50%;
+            top: 50%;
+            width: min(26rem, calc(100vw - 2rem));
+            transform: translate(-50%, -45%) scale(0.98);
+            opacity: 0;
+            pointer-events: none;
+            border-radius: 1.25rem;
+            background: #ffffff;
+            box-shadow: 0 24px 80px rgba(2, 6, 23, 0.26);
+            transition: all 180ms ease;
+        }
+
+        .sk-modal.is-open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .sk-footer {
+            background:
+                linear-gradient(rgba(7, 12, 22, 0.94), rgba(7, 12, 22, 0.96)),
+                url('{{ asset('Pattern2.png') }}');
+            background-size: cover;
+            color: #f8fafc !important;
+        }
+
+        @media (max-width: 768px) {
+            .sf-toolbar,
+            #sfToolbarMainContent {
+                display: none !important;
+            }
+        }
     </style>
     
     {% block stylesheets %}{% endblock %}
 </head>
-<body class="bg-gray-50 dark:bg-slate-900 min-h-screen flex flex-col">
-    <!-- Simple Header - Dark Background for Logo Visibility -->
+<body class="bg-gray-50 dark:bg-slate-900 min-h-screen flex flex-col" data-authenticated="{{ app.user ? '1' : '0' }}" data-login-url="{{ path('app_login') }}" data-cart-url="{{ path('app_cart') }}" data-shop-url="{{ path('app_shop') }}" data-products-api-url="{{ path('api_customer_products') }}">
+    <!-- Public Ecommerce Header -->
     {% set currentRoute = app.request.attributes.get('_route') %}
-    <header class="shadow-lg border-b border-slate-700/40 sticky top-0 z-50" style="background: linear-gradient(135deg, #0b1220 0%, #1f2a3b 55%, #0b1220 100%) !important;">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <!-- Logo - Enhanced Visibility on Dark Background -->
-                <div class="flex items-center">
-                    <a href="{{ path('app_page') }}">
-                        <img src="{{ asset('Logo.png') }}" alt="SKADOOSH Logo" class="h-16 w-auto transition-transform hover:scale-105" style="filter: brightness(1.2) drop-shadow(0 2px 4px rgba(255,255,255,0.3));">
-                    </a>
+    <header class="sk-site-header sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="relative flex items-center justify-between min-h-[84px] gap-4">
+                <div class="flex items-center gap-3 min-w-0">
+                    <button type="button" class="sk-icon-button" data-open-panel="menu" aria-label="Open category menu">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </button>
                 </div>
 
-                <!-- Navigation Links -->
-                <nav class="site-nav flex items-center space-x-2 sm:space-x-3" aria-label="Primary">
-                    <a href="{{ path('app_page') }}"
-                       class="site-link text-sm font-semibold transition-colors hover:underline {{ currentRoute == 'app_page' ? 'is-active' : '' }}"
-                       style="color: #f8fafc !important; font-weight: 600;">
-                        Home
+                <a href="{{ path('app_page') }}" class="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center" aria-label="Skadoosh home">
+                    <img src="{{ asset('Logo.png') }}" alt="SKADOOSH Logo" class="h-14 sm:h-16 w-auto transition-transform hover:scale-105" style="filter: brightness(1.18) drop-shadow(0 8px 20px rgba(255,255,255,0.18));">
+                </a>
+
+                <div class="flex items-center justify-end gap-2 sm:gap-3">
+                    <button type="button" class="sk-icon-button" data-open-panel="search" aria-label="Search">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 21-4.35-4.35M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </button>
+                    <button type="button" class="sk-icon-button" data-favorites-entry aria-label="Favorites">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20.5S4.5 16.1 4.5 9.9A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7.5 2.3c0 6.2-7.5 10.6-7.5 10.6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                        <span class="sk-badge hidden" data-favorite-count>0</span>
+                    </button>
+                    <a class="sk-icon-button" href="{{ path('app_cart') }}" aria-label="Shopping cart">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.2 6h15l-1.7 8.5H8L6.2 3H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" fill="currentColor"/></svg>
+                        <span class="sk-badge hidden" data-cart-count>0</span>
                     </a>
-                    <a href="{{ path('app_shop') }}"
-                       class="site-link text-sm font-semibold transition-colors hover:underline {{ currentRoute == 'app_shop' ? 'is-active' : '' }}"
-                       style="color: #f8fafc !important; font-weight: 600;">
-                        Shop
+                    <a class="sk-icon-button" href="{{ path('app_customization_new') }}" aria-label="Customization">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v3M12 18v3M4.2 7.5l2.6 1.5M17.2 15l2.6 1.5M4.2 16.5 6.8 15M17.2 9l2.6-1.5M9 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </a>
-                    <a href="{{ path('app_page_about') }}"
-                       class="site-link text-sm font-semibold transition-colors hover:underline {{ currentRoute == 'app_page_about' ? 'is-active' : '' }}"
-                       style="color: #f8fafc !important; font-weight: 600;">
-                        About
-                    </a>
-                    <a href="{{ path('app_page_contact') }}"
-                       class="site-link text-sm font-semibold transition-colors hover:underline {{ currentRoute == 'app_page_contact' ? 'is-active' : '' }}"
-                       style="color: #f8fafc !important; font-weight: 600;">
-                        Contact
-                    </a>
-                    {% if app.user %}
-                        <span class="text-sm font-semibold" style="color: #f8fafc !important; font-weight: 500;">
-                            Welcome, <strong style="color: #ffffff !important; font-weight: 700;">{{ app.user.userIdentifier }}</strong>
-                        </span>
-                        {% if 'ROLE_ADMIN' in app.user.roles %}
-                            <a href="{{ path('app_admin_dashboard') }}" class="text-sm font-semibold transition-colors hover:underline" style="color: #f8fafc !important; font-weight: 600;">
-                                Admin Dashboard
-                            </a>
-                        {% elseif 'ROLE_STAFF' in app.user.roles %}
-                            <a href="{{ path('app_products_index') }}" class="text-sm font-semibold transition-colors hover:underline" style="color: #f8fafc !important; font-weight: 600;">
-                                Products
-                            </a>
-                        {% endif %}
-                        <a href="{{ path('app_logout') }}" class="text-sm font-semibold transition-colors hover:underline" style="color: #ffffff !important; font-weight: 600;">
-                            Logout
-                        </a>
-                    {% else %}
-                        <a href="{{ path('app_login') }}" class="text-sm font-semibold transition-colors hover:underline" style="color: #f8fafc !important; font-weight: 600;">
-                            Sign In
-                        </a>
-                        <a href="{{ path('app_register') }}" class="btn-primary text-sm px-5 py-2.5 font-semibold rounded-lg">
-                            Register
-                        </a>
-                    {% endif %}
-                </nav>
+                </div>
             </div>
         </div>
     </header>
 
+    <div class="sk-panel-backdrop" data-panel-backdrop></div>
+
+    <aside class="sk-panel sk-panel-left p-6 overflow-y-auto" data-panel="menu" aria-label="Category menu">
+        <div class="flex items-center justify-between gap-4">
+            <img src="{{ asset('PrimaryLogo.png') }}" alt="SKADOOSH" class="h-10 w-auto">
+            <button type="button" class="text-sm font-bold" data-close-panels aria-label="Close menu">Close</button>
+        </div>
+        <p class="mt-8 text-xs font-extrabold uppercase tracking-[0.25em]" style="color:#7a0000 !important;">Shop the floor</p>
+        <nav class="mt-5 grid gap-3">
+            <a href="{{ path('app_shop') }}?category=mens" class="rounded-xl border border-slate-200 p-4 hover:border-red-900/30" style="text-decoration:none;">
+                <strong class="block text-lg">Mens</strong>
+                <span class="block mt-1 text-sm" style="color:#64748b !important;">Graphic tees, strong layers, daily fits.</span>
+            </a>
+            <a href="{{ path('app_shop') }}?category=womens" class="rounded-xl border border-slate-200 p-4 hover:border-red-900/30" style="text-decoration:none;">
+                <strong class="block text-lg">Womens</strong>
+                <span class="block mt-1 text-sm" style="color:#64748b !important;">Clean silhouettes and statement comfort.</span>
+            </a>
+            <a href="{{ path('app_shop') }}?category=accessories" class="rounded-xl border border-slate-200 p-4 hover:border-red-900/30" style="text-decoration:none;">
+                <strong class="block text-lg">Accessories</strong>
+                <span class="block mt-1 text-sm" style="color:#64748b !important;">Finish the look with Skadoosh details.</span>
+            </a>
+        </nav>
+        <div class="mt-8 border-t border-slate-200 pt-6 grid gap-3 text-sm font-semibold">
+            <a href="{{ path('app_page') }}">Home</a>
+            {% if app.user and ('ROLE_ADMIN' in app.user.roles or 'ROLE_STAFF' in app.user.roles) %}
+                <a href="{{ 'ROLE_ADMIN' in app.user.roles ? path('app_admin_dashboard') : path('app_products_index') }}">Dashboard</a>
+            {% endif %}
+            <a href="{{ path('app_customization_new') }}">Custom Studio</a>
+            {% if app.user %}
+                <a href="{{ path('app_customer_profile') }}">Profile</a>
+                <a href="{{ path('app_my_orders') }}">My Orders</a>
+                <a href="{{ path('app_my_customization_requests') }}">My Customization Requests</a>
+            {% endif %}
+            <a href="{{ path('app_page_about') }}">About Skadoosh</a>
+            <a href="{{ path('app_page_contact') }}">Contact support</a>
+            {% if app.user %}
+                <a href="{{ path('app_logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ path('app_login') }}">Login / Account</a>
+            {% endif %}
+        </div>
+    </aside>
+
+    <section class="sk-panel sk-panel-top p-5 sm:p-7" data-panel="search" aria-label="Search panel">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex items-center justify-between gap-4">
+                <h2 class="text-xl font-extrabold">Search Skadoosh</h2>
+                <button type="button" class="text-sm font-bold" data-close-panels>Close</button>
+            </div>
+            <form class="block mt-5" data-site-search-form action="{{ path('app_shop') }}" method="get">
+                <span class="sr-only">Search</span>
+                <input type="search" name="q" data-site-search class="w-full rounded-xl border border-slate-200 px-5 py-4 text-lg bg-white" placeholder="Search products, mens, womens, accessories..." autocomplete="off">
+            </form>
+            <div class="mt-5 grid sm:grid-cols-3 gap-3" data-search-results>
+                <a class="rounded-xl border border-slate-200 p-4" href="{{ path('app_shop') }}?category=mens"><strong>Mens</strong><span class="block text-sm mt-1">Shop menswear</span></a>
+                <a class="rounded-xl border border-slate-200 p-4" href="{{ path('app_shop') }}?category=womens"><strong>Womens</strong><span class="block text-sm mt-1">Shop womenswear</span></a>
+                <a class="rounded-xl border border-slate-200 p-4" href="{{ path('app_shop') }}?category=accessories"><strong>Accessories</strong><span class="block text-sm mt-1">Complete the fit</span></a>
+            </div>
+        </div>
+    </section>
+
+    <aside class="sk-panel sk-panel-right p-6 overflow-y-auto" data-panel="customize" aria-label="Customization drawer">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-[0.25em]" style="color:#7a0000 !important;">Custom Studio</p>
+                <h2 class="mt-2 text-2xl font-extrabold">Design your Skadoosh piece</h2>
+            </div>
+            <button type="button" class="text-sm font-bold" data-close-panels>Close</button>
+        </div>
+        <div class="mt-7 grid gap-3">
+            <a href="{{ path('app_customization_new') }}?type=tshirt" class="rounded-xl border border-slate-200 p-4 hover:border-red-900/30" style="text-decoration:none;">
+                <strong class="block text-lg">Tshirt</strong>
+            </a>
+            <a href="{{ path('app_customization_new') }}?type=accessories" class="rounded-xl border border-slate-200 p-4 hover:border-red-900/30" style="text-decoration:none;">
+                <strong class="block text-lg">Accessories (Tote Bag Only)</strong>
+            </a>
+        </div>
+        <a href="{{ path('app_customization_new') }}" class="btn-primary w-full mt-6">Open customization page</a>
+    </aside>
+
+    <aside class="sk-panel sk-panel-right p-6 overflow-y-auto" data-panel="favorites" aria-label="Favorites drawer">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-[0.25em]" style="color:#7a0000 !important;">Saved looks</p>
+                <h2 class="mt-2 text-2xl font-extrabold">Favorites</h2>
+            </div>
+            <button type="button" class="text-sm font-bold" data-close-panels>Close</button>
+        </div>
+        <div class="mt-6 space-y-3" data-favorites-list>
+            <p class="text-sm" style="color:#64748b !important;">No favorites yet. Tap the heart on a product to save it here.</p>
+        </div>
+    </aside>
+
+    <div class="sk-modal p-6" data-login-modal role="dialog" aria-modal="true" aria-label="Login required">
+        <h2 class="text-2xl font-extrabold">Login required</h2>
+        <p class="mt-3 text-sm leading-relaxed" style="color:#475569 !important;">Please log in before adding products to your cart or saving items to your Skadoosh account.</p>
+        <div class="mt-6 flex flex-col sm:flex-row gap-3">
+            <a href="{{ path('app_login') }}" class="btn-primary flex-1">Log in</a>
+            <button type="button" class="btn-secondary flex-1" data-close-login-modal>Cancel</button>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="flex-1">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
+                    <div class="rounded-xl border px-5 py-4 text-sm font-semibold {% if label == 'success' %}border-green-200 bg-green-50{% elseif label == 'warning' %}border-amber-200 bg-amber-50{% else %}border-slate-200 bg-white{% endif %}">
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
         {% block body %}{% endblock %}
     </main>
 
-    <!-- Simple Footer -->
-    <footer class="bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 mt-auto" style="background-color: rgba(255, 255, 255, 0.98) !important;">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <p class="text-sm font-semibold" style="color: #111827 !important;">
-                    &copy; {{ "now"|date("Y") }} SKADOOSH. All rights reserved.
-                </p>
-                <div class="flex items-center space-x-4">
-                    <a href="#" class="text-sm font-medium hover:text-red-600 transition-colors" style="color: #111827 !important;">
-                        Privacy Policy
-                    </a>
-                    <a href="#" class="text-sm font-medium hover:text-red-600 transition-colors" style="color: #111827 !important;">
-                        Terms of Service
-                    </a>
-                    <a href="{{ path('app_page_contact') }}" class="text-sm font-medium hover:text-red-600 transition-colors" style="color: #111827 !important;">
-                        Contact
-                    </a>
+    <!-- Ecommerce Footer -->
+    <footer class="sk-footer mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-16">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div class="lg:col-span-4">
+                    <img src="{{ asset('Logo.png') }}" alt="SKADOOSH" class="h-16 w-auto" style="filter: brightness(1.2);">
+                    <p class="mt-5 max-w-sm text-sm leading-relaxed" style="color:rgba(226,232,240,0.86) !important;">Skadoosh brings premium streetwear energy into a clean ecommerce experience: bold graphics, reliable basics, and a smoother way to shop.</p>
+                    <div class="mt-6 flex gap-3">
+                        <a href="{{ path('app_shop') }}" class="btn-primary">Shop now</a>
+                        <a href="{{ path('app_customization_new') }}" class="btn-secondary">Customize</a>
+                    </div>
                 </div>
+                <div class="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <section>
+                        <h2 class="text-xs font-extrabold uppercase tracking-[0.24em]" style="color:#ffffff !important;">Shop</h2>
+                        <nav class="mt-4 grid gap-2 text-sm">
+                            <a href="{{ path('app_shop') }}?category=mens" style="color:rgba(226,232,240,0.86) !important;">Mens</a>
+                            <a href="{{ path('app_shop') }}?category=womens" style="color:rgba(226,232,240,0.86) !important;">Womens</a>
+                            <a href="{{ path('app_shop') }}?category=accessories" style="color:rgba(226,232,240,0.86) !important;">Accessories</a>
+                            <a href="{{ path('app_shop') }}" style="color:rgba(226,232,240,0.86) !important;">New arrivals</a>
+                        </nav>
+                    </section>
+                    <section>
+                        <h2 class="text-xs font-extrabold uppercase tracking-[0.24em]" style="color:#ffffff !important;">Help</h2>
+                        <nav class="mt-4 grid gap-2 text-sm">
+                            <a href="{{ path('app_page_contact') }}" style="color:rgba(226,232,240,0.86) !important;">Contact</a>
+                            <a href="{{ path('app_page_contact') }}#faq" style="color:rgba(226,232,240,0.86) !important;">FAQ</a>
+                            <a href="{{ path('app_cart') }}" style="color:rgba(226,232,240,0.86) !important;">Cart</a>
+                            <a href="{{ path('app_page_contact') }}#sizing" style="color:rgba(226,232,240,0.86) !important;">Sizing</a>
+                        </nav>
+                    </section>
+                    <section>
+                        <h2 class="text-xs font-extrabold uppercase tracking-[0.24em]" style="color:#ffffff !important;">Account</h2>
+                        <nav class="mt-4 grid gap-2 text-sm">
+                            {% if app.user %}
+                                <a href="{{ path('app_logout') }}" style="color:rgba(226,232,240,0.86) !important;">Logout</a>
+                            {% else %}
+                                <a href="{{ path('app_login') }}" style="color:rgba(226,232,240,0.86) !important;">Login</a>
+                                <a href="{{ path('app_register') }}" style="color:rgba(226,232,240,0.86) !important;">Create account</a>
+                            {% endif %}
+                            <button type="button" class="text-left text-sm" data-favorites-entry style="color:rgba(226,232,240,0.86) !important;">Favorites</button>
+                            <a href="{{ path('app_customization_new') }}" style="color:rgba(226,232,240,0.86) !important;">Custom request</a>
+                        </nav>
+                    </section>
+                    <section>
+                        <h2 class="text-xs font-extrabold uppercase tracking-[0.24em]" style="color:#ffffff !important;">Newsletter</h2>
+                        <p class="mt-4 text-sm leading-relaxed" style="color:rgba(226,232,240,0.86) !important;">Get drop notes, fit ideas, and launch alerts.</p>
+                        <form class="mt-4 flex gap-2" onsubmit="event.preventDefault(); alert('Thanks for joining the Skadoosh drop list.');">
+                            <input type="email" required placeholder="Email" class="min-w-0 flex-1 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm" style="color:#ffffff !important;">
+                            <button class="btn-primary px-4 py-2" type="submit">Join</button>
+                        </form>
+                    </section>
+                </div>
+            </div>
+            <div class="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <p class="text-xs font-semibold" style="color:rgba(226,232,240,0.78) !important;">&copy; {{ "now"|date("Y") }} SKADOOSH. All rights reserved.</p>
+                <p class="text-xs" style="color:rgba(226,232,240,0.78) !important;">Built for the final project demo with a fashion ecommerce flow.</p>
             </div>
         </div>
     </footer>
 
+    <script>
+        (function () {
+            var cartKey = 'skadoosh.cart';
+            var favoriteKey = 'skadoosh.favorites';
+            var body = document.body;
+            var isAuthenticated = body.dataset.authenticated === '1';
+            var backdrop = document.querySelector('[data-panel-backdrop]');
+            var loginModal = document.querySelector('[data-login-modal]');
+
+            function read(key) {
+                try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { return []; }
+            }
+
+            function write(key, value) {
+                localStorage.setItem(key, JSON.stringify(value));
+            }
+
+            function formatPeso(value) {
+                return '₱' + Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            function closePanels() {
+                document.querySelectorAll('[data-panel]').forEach(function (panel) { panel.classList.remove('is-open'); });
+                if (backdrop) backdrop.classList.remove('is-open');
+            }
+
+            function openPanel(name) {
+                closeLoginModal();
+                document.querySelectorAll('[data-panel]').forEach(function (panel) {
+                    panel.classList.toggle('is-open', panel.dataset.panel === name);
+                });
+                if (backdrop) backdrop.classList.add('is-open');
+                if (name === 'favorites') renderFavorites();
+            }
+
+            function openLoginModal() {
+                closePanels();
+                if (backdrop) backdrop.classList.add('is-open');
+                if (loginModal) loginModal.classList.add('is-open');
+            }
+
+            function closeLoginModal() {
+                if (loginModal) loginModal.classList.remove('is-open');
+            }
+
+            function updateCounts() {
+                var cart = read(cartKey);
+                var favorites = read(favoriteKey);
+                var cartCount = cart.reduce(function (sum, item) { return sum + Number(item.quantity || 1); }, 0);
+                document.querySelectorAll('[data-cart-count]').forEach(function (badge) {
+                    badge.textContent = cartCount;
+                    badge.classList.toggle('hidden', cartCount === 0);
+                });
+                document.querySelectorAll('[data-favorite-count]').forEach(function (badge) {
+                    badge.textContent = favorites.length;
+                    badge.classList.toggle('hidden', favorites.length === 0);
+                });
+            }
+
+            function addToCart(data) {
+                var cart = read(cartKey);
+                var key = [data.id, data.color || 'Default', data.size || 'One size'].join('::');
+                var existing = cart.find(function (item) { return item.key === key; });
+                if (existing) {
+                    existing.quantity = Number(existing.quantity || 1) + 1;
+                } else {
+                    cart.push(Object.assign({ key: key, quantity: 1 }, data));
+                }
+                write(cartKey, cart);
+                updateCounts();
+                window.dispatchEvent(new CustomEvent('skadoosh:cart-updated'));
+            }
+
+            function renderFavorites() {
+                var target = document.querySelector('[data-favorites-list]');
+                if (!target) return;
+                var favorites = read(favoriteKey);
+                if (!favorites.length) {
+                    target.innerHTML = '<p class="text-sm" style="color:#64748b !important;">No favorites yet. Tap the heart on a product to save it here.</p>';
+                    return;
+                }
+                target.innerHTML = favorites.map(function (item) {
+                    return '<a class="flex gap-3 rounded-xl border border-slate-200 p-3" href="' + item.url + '" style="text-decoration:none;">' +
+                        (item.image ? '<img src="' + item.image + '" alt="" class="h-16 w-14 rounded-lg object-cover">' : '') +
+                        '<span><strong class="block">' + item.name + '</strong><span class="block text-sm" style="color:#7a0000 !important;">' + formatPeso(item.price) + '</span></span>' +
+                        '</a>';
+                }).join('');
+            }
+
+            document.addEventListener('click', function (event) {
+                var opener = event.target.closest('[data-open-panel]');
+                if (opener) {
+                    event.preventDefault();
+                    openPanel(opener.dataset.openPanel);
+                    return;
+                }
+
+                if (event.target.closest('[data-close-panels]') || event.target === backdrop) {
+                    closePanels();
+                    closeLoginModal();
+                    if (backdrop) backdrop.classList.remove('is-open');
+                    return;
+                }
+
+                if (event.target.closest('[data-close-login-modal]')) {
+                    closeLoginModal();
+                    if (backdrop) backdrop.classList.remove('is-open');
+                    return;
+                }
+
+                var favoritesEntry = event.target.closest('[data-favorites-entry]');
+                if (favoritesEntry) {
+                    event.preventDefault();
+                    if (!isAuthenticated) {
+                        openLoginModal();
+                    } else {
+                        openPanel('favorites');
+                    }
+                    return;
+                }
+
+                var favoriteButton = event.target.closest('[data-favorite-product]');
+                if (favoriteButton) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!isAuthenticated) {
+                        openLoginModal();
+                        return;
+                    }
+                    var favorites = read(favoriteKey);
+                    var data = favoriteButton.dataset;
+                    var index = favorites.findIndex(function (item) { return item.id === data.id; });
+                    if (index >= 0) {
+                        favorites.splice(index, 1);
+                        favoriteButton.classList.remove('is-favorited');
+                    } else {
+                        favorites.push({ id: data.id, name: data.name, price: data.price, image: data.image, url: data.url });
+                        favoriteButton.classList.add('is-favorited');
+                    }
+                    write(favoriteKey, favorites);
+                    updateCounts();
+                    return;
+                }
+
+                var cartButton = event.target.closest('[data-add-cart]');
+                if (cartButton) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!isAuthenticated) {
+                        openLoginModal();
+                        return;
+                    }
+                    addToCart({
+                        id: cartButton.dataset.id,
+                        name: cartButton.dataset.name,
+                        price: cartButton.dataset.price,
+                        image: cartButton.dataset.image,
+                        url: cartButton.dataset.url,
+                        category: cartButton.dataset.category || 'Skadoosh',
+                        color: cartButton.dataset.color || 'Default',
+                        size: cartButton.dataset.size || 'One size'
+                    });
+                    if (cartButton.dataset.redirect === 'cart') {
+                        window.location.href = body.dataset.cartUrl;
+                    } else {
+                        cartButton.textContent = 'Added to cart';
+                        setTimeout(function () { cartButton.textContent = cartButton.dataset.originalText || 'Add to cart'; }, 1200);
+                    }
+                }
+            });
+
+            document.querySelectorAll('[data-add-cart]').forEach(function (button) {
+                button.dataset.originalText = button.textContent.trim();
+            });
+
+            var searchInput = document.querySelector('[data-site-search]');
+            var searchResults = document.querySelector('[data-search-results]');
+            var searchForm = document.querySelector('[data-site-search-form]');
+            var productSearchCache = null;
+            var productSearchLoading = null;
+            var defaultSearchResultsHtml = searchResults ? searchResults.innerHTML : '';
+
+            function escapeHtml(value) {
+                return String(value || '').replace(/[&<>"']/g, function (char) {
+                    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+                });
+            }
+
+            function productImageUrl(imageUrl) {
+                if (!imageUrl) return '';
+                if (/^https?:\/\//i.test(imageUrl)) return imageUrl;
+                return imageUrl.charAt(0) === '/' ? imageUrl : '/' + imageUrl;
+            }
+
+            function fetchProductsForSearch() {
+                if (productSearchCache) {
+                    return Promise.resolve(productSearchCache);
+                }
+                if (productSearchLoading) {
+                    return productSearchLoading;
+                }
+                productSearchLoading = fetch(body.dataset.productsApiUrl || '/api/customer/products', {
+                    headers: { 'Accept': 'application/json' }
+                })
+                    .then(function (response) { return response.ok ? response.json() : Promise.reject(new Error('Search request failed')); })
+                    .then(function (payload) {
+                        productSearchCache = (((payload || {}).data || {}).products || []);
+                        return productSearchCache;
+                    })
+                    .catch(function () {
+                        productSearchCache = [];
+                        return productSearchCache;
+                    });
+                return productSearchLoading;
+            }
+
+            function renderSearchMatches(matches, query) {
+                if (!searchResults) return;
+                if (!query) {
+                    searchResults.innerHTML = defaultSearchResultsHtml;
+                    return;
+                }
+                if (matches.length) {
+                    searchResults.innerHTML = matches.map(function (product) {
+                        var url = (body.dataset.shopUrl || '/shop') + '/' + encodeURIComponent(product.id);
+                        var image = productImageUrl(product.imageUrl);
+                        return '<a class="rounded-xl border border-slate-200 p-4 flex gap-3 items-center hover:border-red-900/30" href="' + url + '" style="text-decoration:none;">' +
+                            (image ? '<img src="' + escapeHtml(image) + '" alt="" class="h-16 w-14 rounded-lg object-cover bg-slate-100">' : '') +
+                            '<span class="min-w-0"><strong class="block truncate">' + escapeHtml(product.name || product.title || 'Product') + '</strong>' +
+                            '<span class="block text-sm mt-1" style="color:#64748b !important;">' + escapeHtml(product.category || product.categoryName || 'Skadoosh') + '</span>' +
+                            '<span class="block text-sm font-extrabold mt-1" style="color:#7a0000 !important;">' + formatPeso(product.price) + '</span></span>' +
+                            '</a>';
+                    }).join('');
+                    return;
+                }
+                searchResults.innerHTML =
+                    '<a class="rounded-xl border border-slate-200 p-4 block sm:col-span-3" href="' + (body.dataset.shopUrl || '/shop') + '?q=' + encodeURIComponent(query) + '" style="text-decoration:none;">' +
+                    '<strong>Search shop for "' + escapeHtml(query) + '"</strong>' +
+                    '<span class="block text-sm mt-1" style="color:#64748b !important;">No quick matches found. Open full shop results.</span>' +
+                    '</a>';
+            }
+
+            if (searchInput && searchResults) {
+                searchInput.addEventListener('input', function () {
+                    var q = searchInput.value.trim().toLowerCase();
+                    if (!q) {
+                        renderSearchMatches([], '');
+                        return;
+                    }
+                    fetchProductsForSearch().then(function (products) {
+                        var matches = products.filter(function (product) {
+                            var haystack = [
+                                product.name,
+                                product.title,
+                                product.description,
+                                product.category,
+                                product.categoryName
+                            ].join(' ').toLowerCase();
+                            return haystack.indexOf(q) !== -1;
+                        }).slice(0, 6);
+                        renderSearchMatches(matches, searchInput.value.trim());
+                    });
+                    var cards = Array.from(document.querySelectorAll('[data-product-search]'));
+                    if (!cards.length) return;
+                    var matches = cards.filter(function (card) {
+                        return (card.dataset.productSearch || '').toLowerCase().includes(q);
+                    }).slice(0, 6);
+                    if (matches.length) searchResults.innerHTML = matches.map(function (card) {
+                        return '<a class="rounded-xl border border-slate-200 p-4" href="' + card.dataset.productUrl + '"><strong>' + card.dataset.productName + '</strong><span class="block text-sm mt-1">' + (card.dataset.productCategory || 'Skadoosh') + '</span></a>';
+                    }).join('');
+                });
+            }
+
+            if (searchForm && searchInput) {
+                searchForm.addEventListener('submit', function (event) {
+                    var query = searchInput.value.trim();
+                    if (!query) {
+                        event.preventDefault();
+                        searchInput.focus();
+                    }
+                });
+            }
+
+            updateCounts();
+        })();
+    </script>
     {% block javascripts %}{% endblock %}
 </body>
 </html>

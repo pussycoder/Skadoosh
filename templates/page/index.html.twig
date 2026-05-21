@@ -20,45 +20,85 @@
     width: 2rem;
   }
   .landing-section {
-    max-width: 72rem;
+    max-width: 76rem;
     margin-left: auto;
     margin-right: auto;
     padding-left: 1rem;
     padding-right: 1rem;
   }
   .hero-surface {
-    background: linear-gradient(135deg, #0b1220 0%, #1f2a3b 55%, #0b1220 100%);
+    background:
+      linear-gradient(115deg, rgba(5, 8, 16, 0.94), rgba(35, 12, 18, 0.88)),
+      url('{{ asset('Pattern2.png') }}');
+    background-size: cover;
+  }
+  .campaign-hero {
+    min-height: calc(100vh - 84px);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+  }
+  .campaign-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.02) 38%, rgba(0,0,0,0.66) 100%);
+  }
+  .campaign-hero-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: 0 1.25rem 3rem;
+  }
+  .campaign-hero-primary {
+    background-image: url('{{ asset('images/homepage/for-homepage.png') }}');
+    background-position: center;
+  }
+  .campaign-hero-secondary {
+    background-image: url('{{ asset('images/homepage/for-homepage-too.png') }}');
+    background-size: cover;
+    background-position: center;
   }
   .hero-card {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(248, 250, 252, 0.12);
+    background: rgba(8, 13, 24, 0.92);
+    border: 1px solid rgba(248, 250, 252, 0.14);
   }
-  .tile {
-    background: rgba(255,255,255,0.82);
+  .fashion-tile,
+  .story-card {
+    background: rgba(255,255,255,0.88);
     border: 1px solid rgba(148,163,184,0.32);
   }
-  .tile:hover { border-color: rgba(122,0,0,0.25); box-shadow: 0 18px 40px rgba(15,23,42,0.10); }
+  .fashion-tile:hover,
+  .story-card:hover {
+    border-color: rgba(122,0,0,0.32);
+    box-shadow: 0 20px 48px rgba(15,23,42,0.12);
+    transform: translateY(-2px);
+  }
+  .dark-editorial {
+    background: linear-gradient(135deg, #080d18 0%, #1f2937 58%, #080d18 100%);
+  }
 </style>
 {% endblock %}
 
 {% block body %}
-<section class="landing-page pb-10">
-  {# Store-like hero (Affliction/Penshoppe/Uniqlo-inspired) #}
+<section class="landing-page pb-16">
   <section class="hero-surface w-full">
-    <div class="landing-section py-10 sm:py-14">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+    <div class="landing-section py-12 sm:py-16 lg:py-20">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-9 lg:gap-12 items-center">
         <div class="lg:col-span-5">
-          <p class="text-xs font-semibold uppercase tracking-[0.25em] mb-4" style="color: rgba(226,232,240,0.92) !important;">Spring / Summer</p>
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight" style="color:#ffffff !important;">
+          <p class="text-xs font-extrabold uppercase tracking-[0.32em] mb-4" style="color: rgba(226,232,240,0.9) !important;">Spring / Summer</p>
+          <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight" style="color:#ffffff !important;">
             SKADOOSH<br><span style="color:#dc2626 !important;">Premium Apparel</span>
           </h1>
-          <p class="mt-5 text-base sm:text-lg leading-relaxed max-w-xl" style="color: rgba(226,232,240,0.88) !important;">
+          <p class="mt-6 text-base sm:text-lg leading-relaxed max-w-xl" style="color: rgba(226,232,240,0.88) !important;">
             Clean cuts, strong fabric, and a smooth shopping flow.
           </p>
-          <p class="mt-7 flex flex-col sm:flex-row gap-3">
+          <div class="mt-8 flex flex-col sm:flex-row gap-3">
             <a href="{{ path('app_shop') }}" class="btn-primary">Shop now</a>
             <a href="#categories" class="btn-secondary" style="border: 1px solid rgba(248,250,252,0.22); background: rgba(255,255,255,0.08); color:#ffffff !important;">Browse categories</a>
-          </p>
+          </div>
           {% if not app.user %}
             <p class="mt-5 text-xs" style="color: rgba(226,232,240,0.8) !important;">
               New here? <a href="{{ path('app_register') }}" class="underline" style="color:#ffffff !important;">Create an account</a>
@@ -67,81 +107,161 @@
         </div>
 
         <div class="lg:col-span-7">
-          <div class="hero-card rounded-2xl overflow-hidden p-3 sm:p-4">
-            <div class="carousel flex overflow-x-auto scroll-smooth rounded-xl" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
-              <img src="{{ asset('1.png') }}" alt="Lookbook slide 1" class="flex-shrink-0 w-full h-72 sm:h-96 lg:h-[520px] object-contain rounded-xl" style="scroll-snap-align: center;">
-              <img src="{{ asset('2.png') }}" alt="Lookbook slide 2" class="flex-shrink-0 w-full h-72 sm:h-96 lg:h-[520px] object-contain rounded-xl" style="scroll-snap-align: center;">
-              <img src="{{ asset('1.png') }}" alt="Lookbook slide 3" class="flex-shrink-0 w-full h-72 sm:h-96 lg:h-[520px] object-contain rounded-xl" style="scroll-snap-align: center;">
+          <div class="hero-card rounded-3xl overflow-hidden p-3 sm:p-4">
+            <div class="carousel flex overflow-x-auto scroll-smooth rounded-2xl" style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
+              <img src="{{ asset('1.png') }}" alt="Skadoosh lookbook slide 1" class="flex-shrink-0 w-full h-72 sm:h-[34rem] object-contain rounded-2xl" style="scroll-snap-align: center;">
+              <img src="{{ asset('2.png') }}" alt="Skadoosh lookbook slide 2" class="flex-shrink-0 w-full h-72 sm:h-[34rem] object-contain rounded-2xl" style="scroll-snap-align: center;">
+              <img src="{{ asset('1.png') }}" alt="Skadoosh lookbook slide 3" class="flex-shrink-0 w-full h-72 sm:h-[34rem] object-contain rounded-2xl" style="scroll-snap-align: center;">
             </div>
-            <p class="flex justify-center gap-2 mt-4" role="tablist" aria-label="Slide indicators">
-              <button type="button" class="carousel-dot w-3 h-3 rounded-full bg-white/40 hover:bg-white/60 transition-all" data-slide="0" aria-label="Slide 1"></button>
-              <button type="button" class="carousel-dot w-3 h-3 rounded-full bg-white/40 hover:bg-white/60 transition-all" data-slide="1" aria-label="Slide 2"></button>
-              <button type="button" class="carousel-dot w-3 h-3 rounded-full bg-white/40 hover:bg-white/60 transition-all" data-slide="2" aria-label="Slide 3"></button>
-            </p>
+            <div class="flex justify-center gap-2 mt-4" role="tablist" aria-label="Slide indicators">
+              <button type="button" class="carousel-dot w-3 h-3 rounded-full bg-white/40 transition-all" data-slide="0" aria-label="Slide 1"></button>
+              <button type="button" class="carousel-dot w-3 h-3 rounded-full bg-white/40 transition-all" data-slide="1" aria-label="Slide 2"></button>
+              <button type="button" class="carousel-dot w-3 h-3 rounded-full bg-white/40 transition-all" data-slide="2" aria-label="Slide 3"></button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  {# Category tiles (like ecommerce entry points) #}
-  <section class="landing-section pt-10 sm:pt-14" id="categories" aria-labelledby="cat-title">
-    <div class="flex items-end justify-between gap-4 mb-6">
-      <div>
-        <h2 id="cat-title" class="text-2xl sm:text-3xl font-extrabold" style="color:#0f172a;">Shop categories</h2>
-        <p class="mt-2 text-sm sm:text-base" style="color:#475569;">Fast paths into the catalog.</p>
+  <section class="campaign-hero campaign-hero-primary w-full" aria-label="SKD cotton shirts campaign">
+    <div class="campaign-hero-content">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-3xl sm:text-5xl font-extrabold uppercase tracking-tight" style="color:#ffffff !important;">SKD cotton T-shirts</h2>
+        <p class="mt-2 text-sm sm:text-base font-bold" style="color:#ffffff !important;">Everyday comfy with cotton shirts</p>
+        <a href="{{ path('app_shop') }}?category=mens" class="inline-flex mt-5 px-5 py-3 border border-white/70 text-xs font-extrabold uppercase tracking-[0.18em]" style="color:#ffffff !important; text-decoration:none;">Explore</a>
       </div>
-      <a href="{{ path('app_shop') }}" class="text-sm font-semibold underline" style="color:#7a0000;">View all</a>
+    </div>
+  </section>
+
+  <section class="campaign-hero campaign-hero-secondary w-full" aria-label="Skadoosh fabric campaign">
+    <div class="campaign-hero-content">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-3xl sm:text-5xl font-extrabold uppercase tracking-tight" style="color:#ffffff !important;">Fabric of your choice</h2>
+        <p class="mt-2 text-sm sm:text-base font-bold" style="color:#ffffff !important;">Refined silk, bold burgundy, Skadoosh identity</p>
+        <a href="{{ path('app_customization_new') }}" class="inline-flex mt-5 px-5 py-3 border border-white/70 text-xs font-extrabold uppercase tracking-[0.18em]" style="color:#ffffff !important; text-decoration:none;">Explore</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-section pt-12 sm:pt-16" id="categories" aria-labelledby="cat-title">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-7">
+      <div>
+        <p class="text-xs font-extrabold uppercase tracking-[0.28em]" style="color:#7a0000 !important;">Affliction-inspired navigation</p>
+        <h2 id="cat-title" class="mt-2 text-3xl sm:text-4xl font-extrabold">Shop by identity</h2>
+      </div>
+      <a href="{{ path('app_shop') }}" class="text-sm font-bold underline" style="color:#7a0000 !important;">View full catalog</a>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-      <a href="{{ path('app_shop') }}" class="tile rounded-2xl p-6 block transition-all">
-        <p class="text-xs font-semibold uppercase tracking-[0.25em]" style="color:#7a0000;">Featured</p>
-        <h3 class="mt-2 text-xl font-extrabold" style="color:#0f172a;">New arrivals</h3>
-        <p class="mt-2 text-sm" style="color:#475569;">Fresh drops, premium feel.</p>
+      <a href="{{ path('app_shop') }}?category=mens" class="fashion-tile rounded-3xl p-7 block transition-all" style="text-decoration:none;">
+        <p class="text-xs font-extrabold uppercase tracking-[0.25em]" style="color:#7a0000 !important;">Mens</p>
+        <h3 class="mt-20 text-2xl font-extrabold">Graphic strength</h3>
+        <p class="mt-3 text-sm leading-relaxed" style="color:#475569 !important;">Heavy visual energy, dark tones, and everyday layers.</p>
       </a>
-      <a href="{{ path('app_shop') }}" class="tile rounded-2xl p-6 block transition-all">
-        <p class="text-xs font-semibold uppercase tracking-[0.25em]" style="color:#7a0000;">Everyday</p>
-        <h3 class="mt-2 text-xl font-extrabold" style="color:#0f172a;">Essentials</h3>
-        <p class="mt-2 text-sm" style="color:#475569;">Comfort-first staples.</p>
+      <a href="{{ path('app_shop') }}?category=womens" class="fashion-tile rounded-3xl p-7 block transition-all" style="text-decoration:none;">
+        <p class="text-xs font-extrabold uppercase tracking-[0.25em]" style="color:#7a0000 !important;">Womens</p>
+        <h3 class="mt-20 text-2xl font-extrabold">Confident silhouettes</h3>
+        <p class="mt-3 text-sm leading-relaxed" style="color:#475569 !important;">Comfort-led outfits with bold Skadoosh character.</p>
       </a>
-      <a href="{{ path('app_shop') }}" class="tile rounded-2xl p-6 block transition-all">
-        <p class="text-xs font-semibold uppercase tracking-[0.25em]" style="color:#7a0000;">Style</p>
-        <h3 class="mt-2 text-xl font-extrabold" style="color:#0f172a;">Streetwear</h3>
-        <p class="mt-2 text-sm" style="color:#475569;">Modern cuts for daily wear.</p>
+      <a href="{{ path('app_shop') }}?category=accessories" class="fashion-tile rounded-3xl p-7 block transition-all" style="text-decoration:none;">
+        <p class="text-xs font-extrabold uppercase tracking-[0.25em]" style="color:#7a0000 !important;">Accessories</p>
+        <h3 class="mt-20 text-2xl font-extrabold">Complete the fit</h3>
+        <p class="mt-3 text-sm leading-relaxed" style="color:#475569 !important;">Small details that make the full look feel finished.</p>
       </a>
     </div>
   </section>
 
-  {# Brand blocks (simple, clean) #}
-  <section class="landing-section mt-12 sm:mt-14 grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6" aria-label="Brand highlights">
-    <article class="tile rounded-2xl p-6">
-      <h3 class="text-base font-extrabold" style="color:#0f172a;">Premium quality</h3>
-      <p class="mt-2 text-sm" style="color:#475569;">Materials and construction you can feel.</p>
-    </article>
-    <article class="tile rounded-2xl p-6">
-      <h3 class="text-base font-extrabold" style="color:#0f172a;">Fair pricing</h3>
-      <p class="mt-2 text-sm" style="color:#475569;">Value without cutting corners.</p>
-    </article>
-    <article class="tile rounded-2xl p-6">
-      <h3 class="text-base font-extrabold" style="color:#0f172a;">Reliable delivery</h3>
-      <p class="mt-2 text-sm" style="color:#475569;">Straightforward updates and support.</p>
-    </article>
-  </section>
-
-  {# CTA strip #}
-  <section class="landing-section mt-12 sm:mt-14">
-    <div class="rounded-2xl p-7 sm:p-10" style="background: rgba(122,0,0,0.08); border: 1px solid rgba(122,0,0,0.18);">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        <div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold" style="color:#7a0000;">Ready to shop?</h2>
-          <p class="mt-2 text-sm sm:text-base" style="color:#475569;">Browse the catalog or contact us for questions.</p>
+  <section class="landing-section mt-14 sm:mt-20">
+    <div class="dark-editorial rounded-[2rem] p-7 sm:p-10 lg:p-12">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-9 items-center">
+        <div class="lg:col-span-5">
+          <p class="text-xs font-extrabold uppercase tracking-[0.28em]" style="color:rgba(226,232,240,0.78) !important;">New arrivals</p>
+          <h2 class="mt-3 text-3xl sm:text-5xl font-extrabold" style="color:#ffffff !important;">Drop-ready pieces for the next scroll.</h2>
+          <p class="mt-5 leading-relaxed" style="color:rgba(226,232,240,0.84) !important;">The homepage now feels like a campaign: more sections, more motion, more ways to discover products before customers reach the cart.</p>
+          <a href="{{ path('app_shop') }}" class="btn-primary mt-7">Browse products</a>
         </div>
-        <div class="flex flex-col sm:flex-row gap-3">
-          <a href="{{ path('app_shop') }}" class="btn-primary">Go to shop</a>
-          <a href="{{ path('app_page_contact') }}" class="btn-secondary">Contact</a>
+        <div class="lg:col-span-7 grid sm:grid-cols-2 gap-4">
+          <article class="rounded-2xl bg-white/8 border border-white/10 p-6">
+            <h3 class="text-xl font-extrabold" style="color:#ffffff !important;">Best sellers</h3>
+            <p class="mt-3 text-sm leading-relaxed" style="color:rgba(226,232,240,0.78) !important;">Highlight the products your admin adds most recently and create a stronger reason to keep browsing.</p>
+          </article>
+          <article class="rounded-2xl bg-white/8 border border-white/10 p-6">
+            <h3 class="text-xl font-extrabold" style="color:#ffffff !important;">Favorites flow</h3>
+            <p class="mt-3 text-sm leading-relaxed" style="color:rgba(226,232,240,0.78) !important;">Visitors get a login prompt before saving looks, matching your professor's customer-account expectation.</p>
+          </article>
+          <article class="rounded-2xl bg-white/8 border border-white/10 p-6">
+            <h3 class="text-xl font-extrabold" style="color:#ffffff !important;">Cart suggestions</h3>
+            <p class="mt-3 text-sm leading-relaxed" style="color:rgba(226,232,240,0.78) !important;">The cart page recommends more items like Uniqlo's simple add-on shopping pattern.</p>
+          </article>
+          <article class="rounded-2xl bg-white/8 border border-white/10 p-6">
+            <h3 class="text-xl font-extrabold" style="color:#ffffff !important;">Customization</h3>
+            <p class="mt-3 text-sm leading-relaxed" style="color:rgba(226,232,240,0.78) !important;">Customers can describe custom ideas in a polished drawer without leaving the page.</p>
+          </article>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="landing-section mt-14 sm:mt-20" aria-labelledby="flow-heading">
+    <div class="text-center max-w-3xl mx-auto mb-9">
+      <p class="text-xs font-extrabold uppercase tracking-[0.28em]" style="color:#7a0000 !important;">Customer flow</p>
+      <h2 id="flow-heading" class="mt-2 text-3xl sm:text-4xl font-extrabold">From discovery to cart in four moves</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+      {% set steps = [
+        {'title': 'Open menu', 'copy': 'Mens, womens, and accessories sit in the sidebar like a fashion storefront.'},
+        {'title': 'Search fast', 'copy': 'The search icon opens a quick overlay for products and categories.'},
+        {'title': 'Save favorites', 'copy': 'Guests see a login prompt, while signed-in users can save local demo favorites.'},
+        {'title': 'Add to cart', 'copy': 'Products move into a cart page with totals and suggestions.'}
+      ] %}
+      {% for step in steps %}
+        <article class="story-card rounded-2xl p-6 transition-all">
+          <span class="inline-flex w-10 h-10 items-center justify-center rounded-full font-extrabold" style="background:#7a0000; color:#ffffff !important;">{{ loop.index }}</span>
+          <h3 class="mt-5 text-xl font-extrabold">{{ step.title }}</h3>
+          <p class="mt-3 text-sm leading-relaxed" style="color:#475569 !important;">{{ step.copy }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="landing-section mt-14 sm:mt-20">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <article class="story-card rounded-[2rem] p-8 sm:p-10">
+        <p class="text-xs font-extrabold uppercase tracking-[0.28em]" style="color:#7a0000 !important;">Skadoosh promise</p>
+        <h2 class="mt-3 text-3xl font-extrabold">Brand details customers can feel.</h2>
+        <ul class="mt-6 space-y-4 text-sm leading-relaxed" style="color:#475569 !important;">
+          <li><strong>Premium feel:</strong> product cards and detail pages focus on clean buying decisions.</li>
+          <li><strong>Visual identity:</strong> Pattern backgrounds and the centered logo keep the brand recognizable.</li>
+          <li><strong>Presentation-ready:</strong> every icon in the navbar now has a visible function for demo day.</li>
+        </ul>
+      </article>
+      <article class="story-card rounded-[2rem] p-8 sm:p-10">
+        <p class="text-xs font-extrabold uppercase tracking-[0.28em]" style="color:#7a0000 !important;">Custom studio</p>
+        <h2 class="mt-3 text-3xl font-extrabold">Want a one-off piece?</h2>
+        <p class="mt-5 text-sm leading-relaxed" style="color:#475569 !important;">Use the customization icon to describe a design request, preferred color, size, and product type. It saves in the browser as a polished frontend demo.</p>
+        <a href="{{ path('app_customization_new') }}" class="btn-primary mt-7">Open customization page</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="landing-section mt-14 sm:mt-20">
+    <div class="rounded-[2rem] p-8 sm:p-12 text-center" style="background: rgba(122,0,0,0.10); border: 1px solid rgba(122,0,0,0.18);">
+      <p class="text-xs font-extrabold uppercase tracking-[0.28em]" style="color:#7a0000 !important;">Join the drop</p>
+      <h2 class="mt-3 text-3xl sm:text-5xl font-extrabold">Scroll, save, customize, cart.</h2>
+      <p class="mt-5 max-w-2xl mx-auto leading-relaxed" style="color:#475569 !important;">Skadoosh now has the longer fashion landing experience your professor asked for, with more content to explore before customers commit to shopping.</p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="{{ path('app_shop') }}" class="btn-primary">Start shopping</a>
+        <a href="{{ path('app_page_about') }}" class="btn-secondary">Read the story</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-section mt-14 sm:mt-20" aria-label="SKADOOSH brand video">
+    <div class="rounded-[2rem] overflow-hidden bg-black border border-slate-900">
+      <video class="w-full object-cover max-h-[620px]" autoplay muted loop playsinline preload="metadata">
+        <source src="/brand-video" type="video/mp4">
+      </video>
     </div>
   </section>
 </section>
@@ -153,6 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var carousel = document.querySelector('.landing-page .carousel');
   var dots = document.querySelectorAll('.landing-page .carousel-dot');
   if (!carousel || !dots.length) return;
+
   var currentSlide = 0;
   function updateCarousel() {
     carousel.scrollTo({ left: currentSlide * carousel.offsetWidth, behavior: 'smooth' });
@@ -160,26 +281,21 @@ document.addEventListener('DOMContentLoaded', function () {
       dot.classList.toggle('active', index === currentSlide);
     });
   }
-  dots.forEach(function (dot, index) {
-    dot.addEventListener('click', function () { currentSlide = index; updateCarousel(); });
-  });
-  setInterval(function () { currentSlide = (currentSlide + 1) % 3; updateCarousel(); }, 5000);
-  updateCarousel();
 
-  var isDown = false, startX, scrollLeft;
-  carousel.addEventListener('mousedown', function (e) {
-    isDown = true;
-    startX = e.pageX - carousel.offsetLeft;
-    scrollLeft = carousel.scrollLeft;
+  dots.forEach(function (dot, index) {
+    dot.addEventListener('click', function () {
+      currentSlide = index;
+      updateCarousel();
+    });
   });
-  carousel.addEventListener('mouseleave', function () { isDown = false; });
-  carousel.addEventListener('mouseup', function () { isDown = false; });
-  carousel.addEventListener('mousemove', function (e) {
-    if (!isDown) return;
-    e.preventDefault();
-    var x = e.pageX - carousel.offsetLeft;
-    carousel.scrollLeft = scrollLeft - (x - startX) * 2;
-  });
+
+  setInterval(function () {
+    currentSlide = (currentSlide + 1) % dots.length;
+    updateCarousel();
+  }, 5000);
+
+  updateCarousel();
 });
 </script>
 {% endblock %}
+

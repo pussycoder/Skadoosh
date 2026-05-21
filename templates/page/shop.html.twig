@@ -18,11 +18,16 @@
     background: rgba(255, 255, 255, 0.92);
     border: 1px solid rgba(148, 163, 184, 0.35);
   }
-  .shop-card:hover { border-color: rgba(122,0,0,0.35); box-shadow: 0 18px 40px rgba(15,23,42,0.10); }
+  .shop-card:hover {
+    border-color: rgba(122,0,0,0.35);
+    box-shadow: 0 18px 40px rgba(15,23,42,0.10);
+  }
   .shop-img {
     background: linear-gradient(180deg, rgba(241,245,249,0.85) 0%, rgba(255,255,255,0.85) 100%);
   }
-  .shop-price { color: #7a0000; }
+  .shop-price {
+    color: #7a0000;
+  }
 </style>
 {% endblock %}
 
@@ -31,9 +36,18 @@
   <header class="shop-hero w-full">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
       <p class="text-xs font-semibold uppercase tracking-[0.25em] mb-3" style="color: rgba(255,255,255,0.85) !important;">Shop</p>
-      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight" style="color: #ffffff !important;">Latest drops</h1>
+      {% set categoryLabel = activeCategory == 'mens' ? 'Mens' : (activeCategory == 'womens' ? 'Womens' : (activeCategory in ['accessories', 'accessory'] ? 'Accessories' : 'Latest drops')) %}
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight" style="color: #ffffff !important;">{% if searchQuery %}Search: {{ searchQuery }}{% else %}{{ categoryLabel }}{% endif %}</h1>
       <p class="mt-4 max-w-2xl text-base sm:text-lg leading-relaxed" style="color: rgba(226,232,240,0.92) !important;">
-        Browse products pulled from your database (images come from the uploaded filenames stored per product).
+        {% if searchQuery and activeCategory %}
+          Showing {{ categoryLabel|lower }} products matching "{{ searchQuery }}".
+        {% elseif searchQuery %}
+          Showing products matching "{{ searchQuery }}".
+        {% elseif activeCategory %}
+          Showing products from the {{ categoryLabel|lower }} category.
+        {% else %}
+          Browse products pulled from your database (images come from the uploaded filenames stored per product).
+        {% endif %}
       </p>
     </div>
   </header>
@@ -41,7 +55,7 @@
   <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10">
     {% if products is empty %}
       <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm" style="color:#7a0000;">
-        No products found yet. Add at least 5 products (with uploaded images) in Products Management, then refresh this page.
+        No products found{% if searchQuery %} for "{{ searchQuery }}"{% elseif activeCategory %} for this category{% endif %}. Try a different search or add matching products in Products Management.
       </div>
     {% else %}
       {% set shown = products|slice(0, 24) %}
@@ -53,7 +67,15 @@
 
       <section aria-label="Products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
         {% for product in shown %}
-          <a href="{{ path('app_shop_product', {'id': product.id}) }}" class="shop-card rounded-2xl overflow-hidden transition-all block hover:-translate-y-[1px]" style="text-decoration:none;">
+          <a
+            href="{{ path('app_shop_product', {'id': product.id}) }}"
+            class="shop-card rounded-2xl overflow-hidden transition-all block hover:-translate-y-[1px]"
+            style="text-decoration:none;"
+            data-product-search="{{ (product.name ~ ' ' ~ (product.category ? product.category.name : 'Uncategorized') ~ ' ' ~ product.description)|striptags|lower|e('html_attr') }}"
+            data-product-url="{{ path('app_shop_product', {'id': product.id}) }}"
+            data-product-name="{{ product.name|e('html_attr') }}"
+            data-product-category="{{ product.category ? product.category.name|e('html_attr') : 'Uncategorized' }}"
+          >
             <div class="shop-img aspect-[4/5] w-full overflow-hidden">
               {% if product.image %}
                 <img
@@ -93,4 +115,3 @@
   </div>
 </section>
 {% endblock %}
-

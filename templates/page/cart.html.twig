@@ -1,0 +1,250 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Shopping Cart - SKADOOSH{% endblock %}
+
+{% block stylesheets %}
+<style>
+  body {
+    background-image: url('{{ asset('Pattern.png') }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  .cart-hero {
+    background: linear-gradient(135deg, #080d18 0%, #1f2937 55%, #080d18 100%);
+  }
+  .cart-surface {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+  }
+  .cart-suggestion {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(148,163,184,0.30);
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="pb-16">
+  <header class="cart-hero">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <p class="text-xs font-extrabold uppercase tracking-[0.28em] mb-3" style="color:rgba(226,232,240,0.86) !important;">Shopping cart</p>
+      <h1 class="text-4xl sm:text-5xl font-extrabold" style="color:#ffffff !important;">Review your Skadoosh picks</h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed" style="color:rgba(226,232,240,0.88) !important;">A Uniqlo-inspired cart summary with saved local items, quantity controls, login prompt, and suggested products.</p>
+    </div>
+  </header>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 grid grid-cols-1 lg:grid-cols-12 gap-7">
+    <section class="lg:col-span-8 cart-surface rounded-2xl p-5 sm:p-6">
+      <div class="flex items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+          <h2 class="text-2xl font-extrabold">Bag items</h2>
+          <p class="mt-1 text-sm" style="color:#64748b !important;" data-cart-line-count>Loading cart...</p>
+        </div>
+        <a href="{{ path('app_shop') }}" class="text-sm font-bold underline" style="color:#7a0000 !important;">Continue shopping</a>
+      </div>
+      <div class="mt-5 space-y-4" data-cart-items></div>
+    </section>
+
+    <aside class="lg:col-span-4 space-y-5">
+      <section class="cart-surface rounded-2xl p-5 sm:p-6">
+        <h2 class="text-xl font-extrabold">Order summary</h2>
+        <dl class="mt-5 space-y-3 text-sm">
+          <div class="flex items-center justify-between"><dt>Subtotal</dt><dd class="font-bold" data-cart-subtotal>₱0.00</dd></div>
+          <div class="flex items-center justify-between"><dt>Shipping</dt><dd class="font-bold">Calculated later</dd></div>
+          <div class="flex items-center justify-between border-t border-slate-200 pt-3"><dt class="font-extrabold">Estimated total</dt><dd class="font-extrabold" data-cart-total>₱0.00</dd></div>
+        </dl>
+        {% if app.user %}
+          <button type="button" class="btn-primary w-full mt-6" data-checkout-url="{{ path('app_cart_checkout') }}" data-cart-checkout>Place Order</button>
+          <p class="mt-3 text-xs leading-relaxed" style="color:#64748b !important;">No payment gateway for now. This creates a pending order for staff/admin review.</p>
+        {% else %}
+          <a href="{{ path('app_login') }}" class="btn-primary w-full mt-6">Log in to checkout</a>
+          <p class="mt-3 text-xs leading-relaxed" style="color:#64748b !important;">Your cart stays in this browser while you sign in.</p>
+        {% endif %}
+      </section>
+
+      <section class="cart-surface rounded-2xl p-5 sm:p-6">
+        <h2 class="text-lg font-extrabold">Account perks</h2>
+        <ul class="mt-4 space-y-2 text-sm" style="color:#475569 !important;">
+          <li>Save favorites before checkout.</li>
+          <li>Keep custom requests ready for support.</li>
+          <li><a href="{{ path('app_my_orders') }}" class="font-bold underline" style="color:#7a0000 !important;">Track orders in My Orders.</a></li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-10" aria-labelledby="suggestions-heading">
+    <div class="flex items-end justify-between gap-4 mb-5">
+      <div>
+        <p class="text-xs font-extrabold uppercase tracking-[0.25em]" style="color:#7a0000 !important;">You may also like</p>
+        <h2 id="suggestions-heading" class="mt-2 text-2xl font-extrabold">Complete the fit</h2>
+      </div>
+      <a href="{{ path('app_shop') }}" class="text-sm font-bold underline" style="color:#7a0000 !important;">View all</a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {% for product in suggestions %}
+        {% set imageUrl = product.image ? asset('uploads/images/' ~ product.image) : '' %}
+        <article class="cart-suggestion rounded-2xl overflow-hidden">
+          <a href="{{ path('app_shop_product', {'id': product.id}) }}" style="text-decoration:none;">
+            <div class="aspect-[4/5] bg-white overflow-hidden">
+              {% if product.image %}
+                <img src="{{ imageUrl }}" alt="{{ product.name }}" class="w-full h-full object-cover" loading="lazy">
+              {% else %}
+                <div class="w-full h-full flex items-center justify-center text-sm" style="color:#64748b !important;">No image</div>
+              {% endif %}
+            </div>
+            <div class="p-4">
+              <h3 class="font-extrabold">{{ product.name }}</h3>
+              <p class="mt-1 text-sm" style="color:#7a0000 !important;">₱{{ product.price|number_format(2, '.', ',') }}</p>
+            </div>
+          </a>
+          <div class="px-4 pb-4">
+            <button
+              type="button"
+              class="btn-secondary w-full"
+              data-add-cart
+              data-id="{{ product.id }}"
+              data-name="{{ product.name|e('html_attr') }}"
+              data-price="{{ product.price }}"
+              data-image="{{ imageUrl }}"
+              data-url="{{ path('app_shop_product', {'id': product.id}) }}"
+              data-category="{{ product.category ? product.category.name|e('html_attr') : 'Skadoosh' }}"
+            >Add to cart</button>
+          </div>
+        </article>
+      {% else %}
+        <p class="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm" style="color:#7a0000 !important;">Add products in the admin panel to show suggestions.</p>
+      {% endfor %}
+    </div>
+  </section>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var cartKey = 'skadoosh.cart';
+  var itemsTarget = document.querySelector('[data-cart-items]');
+  var lineCount = document.querySelector('[data-cart-line-count]');
+  var subtotalTarget = document.querySelector('[data-cart-subtotal]');
+  var totalTarget = document.querySelector('[data-cart-total]');
+  var checkoutButton = document.querySelector('[data-cart-checkout]');
+
+  function readCart() {
+    try { return JSON.parse(localStorage.getItem(cartKey) || '[]'); } catch (e) { return []; }
+  }
+
+  function writeCart(cart) {
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+    window.dispatchEvent(new CustomEvent('skadoosh:cart-updated'));
+  }
+
+  function money(value) {
+    return '₱' + Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function render() {
+    var cart = readCart();
+    var count = cart.reduce(function (sum, item) { return sum + Number(item.quantity || 1); }, 0);
+    var subtotal = cart.reduce(function (sum, item) { return sum + Number(item.price || 0) * Number(item.quantity || 1); }, 0);
+    if (lineCount) lineCount.textContent = count ? count + ' item' + (count > 1 ? 's' : '') + ' ready for checkout' : 'Your cart is empty';
+    if (subtotalTarget) subtotalTarget.textContent = money(subtotal);
+    if (totalTarget) totalTarget.textContent = money(subtotal);
+
+    if (!itemsTarget) return;
+    if (!cart.length) {
+      itemsTarget.innerHTML = '<div class="rounded-xl border border-dashed border-slate-300 p-8 text-center"><h3 class="text-xl font-extrabold">Your bag is empty</h3><p class="mt-2 text-sm" style="color:#64748b !important;">Add a product from the shop and it will appear here.</p><a href="{{ path('app_shop') }}" class="btn-primary mt-5">Shop latest drops</a></div>';
+      return;
+    }
+
+    itemsTarget.innerHTML = cart.map(function (item) {
+      return '<article class="flex gap-4 rounded-xl border border-slate-200 p-4" data-cart-row="' + item.key + '">' +
+        (item.image ? '<img src="' + item.image + '" alt="" class="h-28 w-24 rounded-lg object-cover bg-white">' : '<div class="h-28 w-24 rounded-lg bg-slate-100"></div>') +
+        '<div class="min-w-0 flex-1">' +
+          '<div class="flex items-start justify-between gap-4">' +
+            '<div><a href="' + (item.url || '#') + '" class="font-extrabold text-lg" style="text-decoration:none;">' + item.name + '</a><p class="mt-1 text-xs uppercase tracking-wider" style="color:#64748b !important;">' + (item.category || 'Skadoosh') + '</p></div>' +
+            '<p class="font-extrabold" style="color:#7a0000 !important;">' + money(Number(item.price || 0) * Number(item.quantity || 1)) + '</p>' +
+          '</div>' +
+          '<p class="mt-3 text-sm" style="color:#475569 !important;">Color: ' + (item.color || 'Default') + ' · Size: ' + (item.size || 'One size') + '</p>' +
+          '<div class="mt-4 flex items-center justify-between gap-4">' +
+            '<div class="inline-flex items-center rounded-full border border-slate-200 bg-white overflow-hidden">' +
+              '<button type="button" class="px-3 py-2 font-bold" data-qty="-1" data-key="' + item.key + '">-</button>' +
+              '<span class="px-3 py-2 min-w-[2.5rem] text-center font-bold">' + Number(item.quantity || 1) + '</span>' +
+              '<button type="button" class="px-3 py-2 font-bold" data-qty="1" data-key="' + item.key + '">+</button>' +
+            '</div>' +
+            '<button type="button" class="text-sm font-bold underline" data-remove="' + item.key + '" style="color:#7a0000 !important;">Remove</button>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+  }
+
+  document.addEventListener('click', function (event) {
+    var checkout = event.target.closest('[data-cart-checkout]');
+    var qty = event.target.closest('[data-qty]');
+    var remove = event.target.closest('[data-remove]');
+
+    if (checkout) {
+      var cartForCheckout = readCart();
+      if (!cartForCheckout.length) {
+        alert('Your cart is empty.');
+        return;
+      }
+
+      checkout.disabled = true;
+      checkout.textContent = 'Placing order...';
+
+      fetch(checkout.dataset.checkoutUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ items: cartForCheckout })
+      })
+        .then(function (response) {
+          return response.json().then(function (payload) {
+            if (!response.ok || !payload.success) {
+              throw new Error(payload.message || 'Checkout failed.');
+            }
+            return payload;
+          });
+        })
+        .then(function (payload) {
+          localStorage.removeItem(cartKey);
+          window.dispatchEvent(new CustomEvent('skadoosh:cart-updated'));
+          window.location.href = payload.receiptUrl;
+        })
+        .catch(function (error) {
+          alert(error.message || 'Checkout failed.');
+          checkout.disabled = false;
+          checkout.textContent = 'Place Order';
+        });
+      return;
+    }
+
+    if (!qty && !remove) return;
+
+    var cart = readCart();
+    if (qty) {
+      cart = cart.map(function (item) {
+        if (item.key === qty.dataset.key) {
+          item.quantity = Math.max(1, Number(item.quantity || 1) + Number(qty.dataset.qty));
+        }
+        return item;
+      });
+    }
+    if (remove) {
+      cart = cart.filter(function (item) { return item.key !== remove.dataset.remove; });
+    }
+    writeCart(cart);
+    render();
+  });
+
+  window.addEventListener('skadoosh:cart-updated', render);
+  render();
+});
+</script>
+{% endblock %}

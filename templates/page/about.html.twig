@@ -4,97 +4,102 @@
 
 {% block stylesheets %}
 <style>
-  .page-about .meet-team-chic {
-    --brand: #7a0000;
-    --brand-border: rgba(122, 0, 0, 0.14);
-    --brand-shadow: rgba(15, 23, 42, 0.08);
-    background: transparent;
+  .about-hero {
+    background:
+      linear-gradient(120deg, rgba(8,13,24,0.95), rgba(50,12,18,0.88)),
+      url('{{ asset('Pattern2.png') }}');
+    background-size: cover;
   }
-  .page-about figure.team-card {
-    margin: 0;
-    text-align: left;
-    max-width: 240px;
+  .about-card,
+  .team-card {
+    background: rgba(255, 255, 255, 0.90);
+    border: 1px solid rgba(148, 163, 184, 0.30);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
   }
-  .page-about figure.team-card > img {
+  .team-card > img {
     width: 100%;
     aspect-ratio: 4 / 5;
     object-fit: cover;
     object-position: center top;
-    display: block;
-    border-radius: 14px;
+    border-radius: 1rem;
     border: 1px solid rgba(148, 163, 184, 0.35);
-  }
-  .page-about figure.team-card > figcaption {
-    margin-top: 0.9rem;
-  }
-  .page-about figure.team-card > figcaption strong {
-    display: block;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #1f2937;
-    line-height: 1.35;
-  }
-  .page-about figure.team-card > figcaption span {
-    display: block;
-    margin-top: 0.35rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #7a0000;
-    opacity: 0.8;
-  }
-  /* Simple card (clean, like ecommerce team tiles) */
-  .page-about figure.team-card {
-    position: relative;
-    padding: 1rem;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(148, 163, 184, 0.30);
-    box-shadow: 0 16px 34px var(--brand-shadow);
-    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-  }
-  .page-about figure.team-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(122, 0, 0, 0.25);
-    box-shadow: 0 22px 44px rgba(15, 23, 42, 0.12);
   }
 </style>
 {% endblock %}
 
 {% block body %}
-<section class="page-about">
-  <header class="max-w-3xl mx-auto text-center px-4 pt-8 pb-12">
-    <p class="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style="color:#7a0000;">About</p>
-    <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight" style="color:#7a0000;">Built for comfort. Designed for confidence.</h1>
-    <p class="mt-5 text-lg leading-relaxed" style="color:#4b5563;">
-      SKADOOSH is premium apparel—quality materials, calm design, and a smooth path from browse to delivery.
-    </p>
+<section class="page-about pb-16">
+  <header class="about-hero">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+      <p class="text-xs font-extrabold uppercase tracking-[0.3em] mb-4" style="color:rgba(226,232,240,0.82) !important;">About Skadoosh</p>
+      <h1 class="max-w-4xl text-4xl sm:text-6xl font-extrabold tracking-tight" style="color:#ffffff !important;">Premium apparel with scroll-worthy energy.</h1>
+      <p class="mt-6 max-w-2xl text-base sm:text-lg leading-relaxed" style="color:rgba(226,232,240,0.88) !important;">SKADOOSH is a final project brand shaped like a real storefront: strong identity, clean product discovery, customer-friendly actions, and a story that makes people want to browse longer.</p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a href="{{ path('app_shop') }}" class="btn-primary">Explore collection</a>
+        <a href="{{ path('app_customization_new') }}" class="btn-secondary">Customize a piece</a>
+      </div>
+    </div>
   </header>
 
-  <section class="max-w-3xl mx-auto px-4 pb-16 border-t border-red-100 pt-12" aria-labelledby="story-heading">
-    <h2 id="story-heading" class="text-xs font-semibold uppercase tracking-[0.25em] mb-6" style="color:#7a0000;">Our story</h2>
-    <div class="space-y-5 text-base leading-relaxed" style="color:#374151;">
-      <p>
-        We started with a simple idea: everyday clothes should feel as good as they look—without noisy trends or inflated prices.
-      </p>
-      <p>
-        <strong class="text-gray-900">Mission.</strong> Dependable apparel with a premium feel, fair pricing, and service that respects your time.
-        <strong class="text-gray-900 block mt-4">Vision.</strong> To be the staple brand people reach for—where comfort, style, and durability meet.
-      </p>
-    </div>
-    <h3 id="values-heading" class="text-xs font-semibold uppercase tracking-[0.25em] mt-12 mb-4" style="color:#7a0000;">Core values</h3>
-    <ul class="list-none pl-0 space-y-3 border-l-2 pl-5" style="border-color: rgba(122,0,0,0.2); color:#374151;">
-      <li>Quality-first craftsmanship</li>
-      <li>Honest pricing</li>
-      <li>Reliable service</li>
-    </ul>
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 lg:grid-cols-3 gap-6" aria-label="Brand pillars">
+    <article class="about-card rounded-3xl p-7">
+      <p class="text-xs font-extrabold uppercase tracking-[0.24em]" style="color:#7a0000 !important;">01</p>
+      <h2 class="mt-3 text-2xl font-extrabold">Built for confidence</h2>
+      <p class="mt-4 text-sm leading-relaxed" style="color:#475569 !important;">Every section is designed to feel like an invitation: discover the brand, open the menu, search, favorite, customize, and add to cart.</p>
+    </article>
+    <article class="about-card rounded-3xl p-7">
+      <p class="text-xs font-extrabold uppercase tracking-[0.24em]" style="color:#7a0000 !important;">02</p>
+      <h2 class="mt-3 text-2xl font-extrabold">Brand-first visuals</h2>
+      <p class="mt-4 text-sm leading-relaxed" style="color:#475569 !important;">The Skadoosh patterns and centered logo keep the site recognizable across the homepage, shop, cart, and support pages.</p>
+    </article>
+    <article class="about-card rounded-3xl p-7">
+      <p class="text-xs font-extrabold uppercase tracking-[0.24em]" style="color:#7a0000 !important;">03</p>
+      <h2 class="mt-3 text-2xl font-extrabold">Simple commerce</h2>
+      <p class="mt-4 text-sm leading-relaxed" style="color:#475569 !important;">The cart and favorites are lightweight for demo day but structured so backend checkout can be connected later.</p>
+    </article>
   </section>
 
-  <section class="meet-team-chic py-16 sm:py-20 w-full" aria-labelledby="meet-team-heading">
-    <header class="max-w-3xl mx-auto px-4 text-center mb-12">
-      <h2 id="meet-team-heading" class="text-3xl sm:text-4xl font-semibold" style="color:#7a0000;">Meet our team</h2>
-      <p class="mt-4 text-sm sm:text-base max-w-lg mx-auto" style="color:#6b5d5d;">
-        The people who design, build, and support SKADOOSH.
-      </p>
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 py-10" aria-labelledby="story-heading">
+    <div class="about-card rounded-[2rem] p-8 sm:p-10">
+      <p class="text-xs font-extrabold uppercase tracking-[0.28em]" style="color:#7a0000 !important;">Our story</p>
+      <h2 id="story-heading" class="mt-3 text-3xl sm:text-4xl font-extrabold">From class requirement to fashion storefront.</h2>
+      <div class="mt-6 grid md:grid-cols-2 gap-7 text-sm leading-relaxed" style="color:#374151 !important;">
+        <p>Skadoosh started as a web application requirement, but the goal is to make it feel like a real apparel brand. The site now gives customers a reason to scroll: bold entry sections, category discovery, product interactions, and support content.</p>
+        <p><strong>Mission.</strong> Deliver a premium shopping experience that is simple enough to demo, but complete enough to show customer intent. <span class="block mt-4"><strong>Vision.</strong> Become a recognizable local fashion concept where comfort, customization, and confident visuals meet.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12" aria-labelledby="timeline-heading">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-7">
+      <div>
+        <p class="text-xs font-extrabold uppercase tracking-[0.28em]" style="color:#7a0000 !important;">Build timeline</p>
+        <h2 id="timeline-heading" class="mt-2 text-3xl font-extrabold">How the brand experience grows</h2>
+      </div>
+      <a href="{{ path('app_page_contact') }}" class="text-sm font-bold underline" style="color:#7a0000 !important;">Ask about the project</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+      {% set timeline = [
+        {'title': 'Identity', 'copy': 'Logo, colors, and pattern backgrounds make the web app visibly Skadoosh.'},
+        {'title': 'Catalog', 'copy': 'Products from the database create a real shop surface for customers.'},
+        {'title': 'Actions', 'copy': 'Search, favorites, customization, and cart icons all respond.'},
+        {'title': 'Presentation', 'copy': 'Long-scroll pages show more polish during final demo.'}
+      ] %}
+      {% for item in timeline %}
+        <article class="about-card rounded-2xl p-6">
+          <span class="text-xs font-extrabold uppercase tracking-[0.2em]" style="color:#7a0000 !important;">Step {{ loop.index }}</span>
+          <h3 class="mt-3 text-xl font-extrabold">{{ item.title }}</h3>
+          <p class="mt-3 text-sm leading-relaxed" style="color:#475569 !important;">{{ item.copy }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12" aria-labelledby="team-heading">
+    <header class="text-center max-w-3xl mx-auto mb-10">
+      <p class="text-xs font-extrabold uppercase tracking-[0.28em]" style="color:#7a0000 !important;">People behind it</p>
+      <h2 id="team-heading" class="mt-2 text-3xl sm:text-4xl font-extrabold">Meet our team</h2>
+      <p class="mt-4 text-sm sm:text-base" style="color:#6b7280 !important;">The group that designed, built, tested, and presented Skadoosh.</p>
     </header>
 
     {% set team = [
@@ -104,37 +109,31 @@
       {'img': 'member4.png', 'name': 'Roooo', 'role': 'Back-End Developer'}
     ] %}
 
-    <div class="max-w-5xl mx-auto px-4 flex flex-wrap justify-center gap-6 sm:gap-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
       {% for member in team %}
-        <figure class="team-card w-[46%] min-w-[150px] sm:w-auto">
+        <figure class="team-card rounded-3xl p-4">
           <img src="{{ asset('images/team/' ~ member.img) }}" alt="{{ member.name }}" loading="lazy" width="200" height="267">
-          <figcaption>
-            <strong>{{ member.name }}</strong>
-            <span>{{ member.role }}</span>
+          <figcaption class="mt-4">
+            <strong class="block text-sm sm:text-base">{{ member.name }}</strong>
+            <span class="block mt-1 text-xs font-bold uppercase tracking-wider" style="color:#7a0000 !important;">{{ member.role }}</span>
           </figcaption>
         </figure>
       {% endfor %}
     </div>
   </section>
 
-  <section class="max-w-3xl mx-auto px-4 py-12 border-t border-red-100" aria-label="Trust">
-    <p class="text-center text-sm italic leading-relaxed" style="color:#6b7280;">
-      “We build in the open for class milestones—clear flows, accessible pages, and a brand voice you can trust.”
-    </p>
-    <p class="text-center text-xs mt-3 uppercase tracking-wider" style="color:#9ca3af;">Course project · SKADOOSH</p>
-  </section>
-
-  <section class="max-w-5xl mx-auto px-4 py-12 mb-8 border-t border-red-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-    <div>
-      <h2 class="text-xl sm:text-2xl font-bold" style="color:#111827;">Explore the collection</h2>
-      <p class="mt-1 text-sm" style="color:#6b7280;">Browse products or create an account to get started.</p>
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+    <div class="about-card rounded-[2rem] p-8 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <div class="lg:col-span-7">
+        <p class="text-xs font-extrabold uppercase tracking-[0.28em]" style="color:#7a0000 !important;">What customers should feel</p>
+        <h2 class="mt-3 text-3xl sm:text-4xl font-extrabold">A project that looks ready to be used.</h2>
+        <p class="mt-5 text-sm leading-relaxed" style="color:#475569 !important;">The public pages now give more context, excitement, and customer touchpoints before the shop. That directly addresses the feedback that the landing/about/contact pages needed more content and a stronger footer.</p>
+      </div>
+      <div class="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col gap-3">
+        <a href="{{ path('app_shop') }}" class="btn-primary">Shop the catalog</a>
+        <a href="{{ path('app_page_contact') }}" class="btn-secondary">Contact Skadoosh</a>
+      </div>
     </div>
-    <p class="flex flex-wrap gap-3">
-      <a href="{{ path('app_page') }}" class="btn-primary">Home</a>
-      {% if not app.user %}
-        <a href="{{ path('app_register') }}" class="btn-secondary">Create account</a>
-      {% endif %}
-    </p>
   </section>
 </section>
 {% endblock %}

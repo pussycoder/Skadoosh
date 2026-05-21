@@ -3,6 +3,8 @@ security:
     password_hashers:
         App\Entity\User:
             algorithm: auto
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_STAFF]
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         # used to reload user from session & other features (e.g. switch_user)
@@ -18,6 +20,7 @@ security:
         login:
             pattern: ^/api/login
             stateless: true
+            user_checker: App\Security\VerifiedUserChecker
             json_login:
                 check_path: /api/login_check
                 username_path: username
@@ -33,6 +36,7 @@ security:
             lazy: true
             provider: app_user_provider
             entry_point: App\Security\LoginAuthenticator
+            user_checker: App\Security\VerifiedUserChecker
             custom_authenticators:
                 - App\Security\LoginAuthenticator
                 - App\Security\GoogleAuthenticator
@@ -51,8 +55,16 @@ security:
     access_control:
         - { path: ^/connect/google, roles: PUBLIC_ACCESS }
         - { path: ^/verify/email, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/customer/products, roles: PUBLIC_ACCESS }
+        - { path: ^/api/status, roles: PUBLIC_ACCESS }
+        - { path: ^/api/auth, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/products, roles: ROLE_STAFF }
+        - { path: ^/orders, roles: ROLE_STAFF }
+        - { path: ^/customization/requests, roles: ROLE_STAFF }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
 

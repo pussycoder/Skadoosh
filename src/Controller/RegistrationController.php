@@ -33,8 +33,8 @@ class RegistrationController extends AbstractController
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
             
-            // Set default role as ROLE_STAFF for new registrations
-            $user->setRoles(['ROLE_STAFF']);
+            // Public registrations are customers; admins can still create staff/admin users.
+            $user->setRoles(['ROLE_CUSTOMER']);
             $user->setIsVerified(false);
 
             $firstName = trim((string) $request->request->get('first_name', ''));

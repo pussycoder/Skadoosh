@@ -39,7 +39,7 @@ class VerificationService
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $email = (new TemplatedEmail())
-            ->from('no-reply@skadoosh.local')
+            ->from($_ENV['MAILER_FROM_ADDRESS'] ?? 'no-reply@skadoosh.local')
             ->to($user->getEmail())
             ->subject('Verify your SKADOOSH account')
             ->htmlTemplate('emails/verify_email.html.twig')

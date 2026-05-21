@@ -209,6 +209,7 @@ $(document).ready(function() {
         $('#ordersTable').DataTable({
             order: [[0, 'desc']],
             pageLength: 25,
+            scrollX: true,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             language: {
                 search: "Search:",

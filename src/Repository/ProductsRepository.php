@@ -16,6 +16,40 @@ class ProductsRepository extends ServiceEntityRepository
         parent::__construct($registry, Products::class);
     }
 
+    /**
+     * @return Products[]
+     */
+    public function findForShop(?string $categorySlug = null, int $limit = 24, ?string $query = null): array
+    {
+        $builder = $this->createQueryBuilder('p')
+            ->leftJoin('p.Category', 'c')
+            ->addSelect('c')
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults($limit);
+
+        $categoryNames = match (strtolower((string) $categorySlug)) {
+            'mens', 'men' => ['mens', 'men', 'male'],
+            'womens', 'women' => ['womens', 'women', 'female'],
+            'accessories', 'accessory' => ['accessories', 'accessory'],
+            default => [],
+        };
+
+        if ($categoryNames !== []) {
+            $builder
+                ->andWhere('LOWER(c.name) IN (:categoryNames)')
+                ->setParameter('categoryNames', $categoryNames);
+        }
+
+        $search = trim(strtolower((string) $query));
+        if ($search !== '') {
+            $builder
+                ->andWhere('LOWER(p.name) LIKE :search OR LOWER(p.description) LIKE :search OR LOWER(c.name) LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        return $builder->getQuery()->getResult();
+    }
+
 //    /**
 //     * @return Products[] Returns an array of Products objects
 //     */

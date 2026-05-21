@@ -50,7 +50,7 @@ class RegistrationController extends AbstractController
             $verificationService->generateTokenFor($user);
             $verificationService->sendVerificationEmail($user);
 
-            $this->addFlash('success', 'Registration successful. Please verify your email before signing in.');
+            $this->addFlash('success', 'Registration successful. Please verify your email before signing in. If email is disabled in the demo deployment, ask staff to mark the account verified.');
 
             return $this->redirectToRoute('app_login');
         }

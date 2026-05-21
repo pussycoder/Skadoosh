@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -48,7 +49,12 @@ class VerificationService
                 'verifyUrl' => $verifyUrl,
             ]);
 
-        $this->mailer->send($email);
+        try {
+            $this->mailer->send($email);
+        } catch (TransportExceptionInterface) {
+            // In demo/deployment environments, registration should still succeed
+            // even if SMTP is disabled or not yet configured.
+        }
     }
 
     public function verifyByToken(string $token): ?User

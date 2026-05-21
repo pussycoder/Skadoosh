@@ -2,7 +2,7 @@
 @source not "../../public";
 
     body {
-        background-image: url('Pattern.png');
+        background-image: url('../IMAGES/Pattern.png');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;

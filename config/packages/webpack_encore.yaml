@@ -30,9 +30,8 @@ webpack_encore:
         # pass the build name as the 3rd argument to the Twig functions
         # {{ encore_entry_script_tags('entry1', null, 'frontend') }}
 
-framework:
-    assets:
-        json_manifest_path: '%kernel.project_dir%/public/build/manifest.json'
+# Brand images (Pattern.png, Pattern2.png) live in public/ and use asset() directly.
+# Encore manifest is only for /build/* JS/CSS via encore_entry_* Twig functions.
 
 #when@prod:
 #    webpack_encore:

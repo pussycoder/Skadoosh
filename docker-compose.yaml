@@ -12,22 +12,22 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - test_demo_network
+      - skadoosh_network
 
   phpmyadmin:
-      image: phpmyadmin/phpmyadmin
-      restart: unless-stopped
-      environment:
-        PMA_HOST: mysql
-        PMA_USER: test_demo_user
-        PMA_PASSWORD: test_demo_password
-      ports:
-        - "8080:80"
-      depends_on:
-        - mysql
-      networks: 
-        - test_demo_network
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: ${MYSQL_USER}
+      PMA_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks: 
+      - skadoosh_network
 volumes:
   mysql_data:
 networks:
-  test_demo_network:   
+  skadoosh_network:

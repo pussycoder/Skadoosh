@@ -1,0 +1,487 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Customization Studio - SKADOOSH{% endblock %}
+
+{% block stylesheets %}
+<style>
+  .custom-hero {
+    background: linear-gradient(135deg, #080d18 0%, #1f2937 55%, #080d18 100%);
+  }
+  .custom-surface {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.10);
+  }
+  .custom-preview {
+    background:
+      radial-gradient(circle at 50% 20%, rgba(122, 0, 0, 0.16), transparent 32%),
+      linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 0.98));
+  }
+  .custom-tool {
+    min-height: 2.75rem;
+    padding: 0.6rem 0.45rem;
+    border-radius: 0.85rem;
+    background: rgba(15, 23, 42, 0.04);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+  }
+  .custom-tool.is-active {
+    background: #7a0000;
+    border-color: #7a0000;
+    color: #ffffff !important;
+    box-shadow: 0 10px 24px rgba(122, 0, 0, 0.22);
+  }
+  .custom-tool svg {
+    display: block;
+    margin: 0 auto 0.3rem;
+  }
+  .custom-base-preview {
+    min-height: 22rem;
+  }
+  .custom-base-preview.is-hidden {
+    display: none;
+  }
+  .custom-base-placeholder {
+    width: min(14rem, 72%);
+    height: 18rem;
+    border: 1px solid rgba(148, 163, 184, 0.55);
+    background: linear-gradient(180deg, #f8fafc, #e2e8f0);
+  }
+  .custom-base-placeholder.tshirt {
+    border-radius: 4.5rem 4.5rem 2rem 2rem;
+  }
+  .custom-base-placeholder.tote {
+    height: 17rem;
+    border-radius: 1.4rem 1.4rem 2rem 2rem;
+    position: relative;
+  }
+  .custom-base-placeholder.tote::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -3.25rem;
+    width: 7rem;
+    height: 5rem;
+    transform: translateX(-50%);
+    border: 1rem solid #cbd5e1;
+    border-bottom: 0;
+    border-radius: 999px 999px 0 0;
+  }
+  .custom-editor-board {
+    position: relative;
+    min-height: 32rem;
+    overflow: hidden;
+    touch-action: none;
+  }
+  .custom-editor-board.is-hidden {
+    display: none;
+  }
+  .custom-editor-board img {
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+  .custom-item-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+  }
+  .custom-design-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    cursor: move;
+    user-select: none;
+    touch-action: none;
+    color: #7a0000 !important;
+    font-weight: 900;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+  }
+  .custom-design-item[data-type="text"] {
+    min-width: 5rem;
+    padding: 0.2rem 0.45rem;
+    font-size: clamp(1rem, 3vw, 1.45rem);
+  }
+  .custom-design-item[data-type="sticker"] {
+    font-size: clamp(1.8rem, 6vw, 3rem);
+  }
+  .custom-design-item.is-selected {
+    outline: 2px dashed #7a0000;
+    outline-offset: 0.25rem;
+    border-radius: 0.4rem;
+  }
+  @media (max-width: 640px) {
+    .custom-editor-layout {
+      grid-template-columns: 1fr;
+    }
+    .custom-toolbox {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .custom-tool {
+      min-height: 3.75rem;
+    }
+    .custom-editor-board {
+      min-height: 26rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="pb-16">
+  <header class="custom-hero">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+      <p class="text-xs font-extrabold uppercase tracking-[0.28em] mb-3" style="color:rgba(226,232,240,0.86) !important;">Custom Studio</p>
+      <h1 class="text-4xl sm:text-5xl font-extrabold" style="color:#ffffff !important;">Design a Skadoosh piece</h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed" style="color:rgba(226,232,240,0.88) !important;">
+        Pick a T-shirt or accessory, describe the design, and staff will receive the request in their dashboard.
+      </p>
+    </div>
+  </header>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 grid grid-cols-1 lg:grid-cols-12 gap-7">
+    <section class="lg:col-span-8 custom-surface rounded-3xl p-5 sm:p-7">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-xs font-extrabold uppercase tracking-[0.24em]" style="color:#7a0000 !important;">Step 1</p>
+          <h2 class="mt-2 text-2xl sm:text-3xl font-extrabold">Choose what to design</h2>
+        </div>
+      </div>
+
+      {{ form_start(form, {'attr': {'class': 'mt-7 space-y-6'}}) }}
+        {{ form_errors(form) }}
+        <input type="hidden" name="design_snapshot" data-design-snapshot>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" data-custom-type-picker>
+          {% for choice in form.productType %}
+            <label class="cursor-pointer">
+              {{ form_widget(choice, {'attr': {'class': 'sr-only peer', 'data-custom-type-input': choice.vars.value}}) }}
+              <span class="block rounded-2xl border border-slate-200 bg-white p-5 transition-all peer-checked:border-red-900 peer-checked:bg-red-50 text-center">
+                <strong class="block text-xl">{{ choice.vars.label }}</strong>
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+        {{ form_errors(form.productType) }}
+
+        <section class="custom-preview rounded-3xl border border-slate-200 p-4 sm:p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p class="text-xs font-extrabold uppercase tracking-[0.24em]" style="color:#7a0000 !important;">Design preview</p>
+              <h3 class="mt-2 text-xl font-extrabold">Edit your mockup</h3>
+            </div>
+            <p class="text-sm max-w-md" style="color:#64748b !important;">Add text, place stickers, and delete selected items from the base item.</p>
+          </div>
+
+          <div class="mt-5 grid custom-editor-layout grid-cols-[5.5rem_1fr] gap-4">
+            <nav class="custom-toolbox grid gap-2 content-start" aria-label="Customization tools">
+              <button type="button" class="custom-tool is-active border border-slate-200 font-extrabold uppercase" data-design-tool="text" style="color:#0f172a !important;">Text</button>
+              <button type="button" class="custom-tool border border-slate-200 font-extrabold uppercase" data-design-tool="sticker" style="color:#0f172a !important;">Stickers</button>
+            </nav>
+
+            <div class="min-w-0">
+              <div class="rounded-2xl border border-slate-200 bg-white/85 p-3 sm:p-4">
+                <div class="flex flex-wrap items-center gap-2">
+                  <input type="text" data-design-text class="min-w-0 flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white" placeholder="Text to add">
+                  <button type="button" class="btn-primary px-4 py-2" data-add-text>Add text</button>
+                  <button type="button" class="btn-secondary px-4 py-2" data-delete-selected>Delete selected</button>
+                </div>
+                <div class="mt-3 hidden flex flex-wrap items-center gap-2" aria-label="Design stickers" data-sticker-panel>
+                  {% for sticker in ['★', '♥', '⚡', '🔥', 'SKD'] %}
+                    <button type="button" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-lg font-extrabold" data-design-sticker="{{ sticker }}">{{ sticker }}</button>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div class="mt-4 rounded-[2rem] border border-slate-200 bg-white/80 p-3 sm:p-5">
+                <div class="custom-editor-board flex items-center justify-center" data-custom-preview="T-shirt">
+                  {% if baseImages.tshirt %}
+                    <img src="{{ baseImages.tshirt }}" alt="Base T-shirt" class="max-h-[26rem] w-full object-contain">
+                  {% else %}
+                    <div class="custom-base-placeholder tshirt flex items-center justify-center text-center px-5">
+                      <span class="text-xs font-extrabold uppercase tracking-[0.18em]" style="color:#7a0000 !important;">Base T-shirt</span>
+                    </div>
+                  {% endif %}
+                  <div class="custom-item-layer" data-item-layer></div>
+                </div>
+
+                <div class="custom-editor-board flex items-center justify-center is-hidden" data-custom-preview="Accessories">
+                  {% if baseImages.tote %}
+                    <img src="{{ baseImages.tote }}" alt="Base tote bag" class="max-h-[26rem] w-full object-contain">
+                  {% else %}
+                    <div class="custom-base-placeholder tote flex items-center justify-center text-center px-5">
+                      <span class="text-xs font-extrabold uppercase tracking-[0.18em]" style="color:#7a0000 !important;">Base tote bag</span>
+                    </div>
+                  {% endif %}
+                  <div class="custom-item-layer" data-item-layer></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            {{ form_label(form.size, null, {'label_attr': {'class': 'block text-sm font-bold mb-2'}}) }}
+            {{ form_widget(form.size, {'attr': {'class': 'w-full rounded-xl border border-slate-200 px-4 py-3 bg-white'}}) }}
+            {{ form_errors(form.size) }}
+          </div>
+          <div data-fabric-field>
+            {{ form_label(form.placement, null, {'label_attr': {'class': 'block text-sm font-bold mb-2'}}) }}
+            {{ form_widget(form.placement, {'attr': {'class': 'w-full rounded-xl border border-slate-200 px-4 py-3 bg-white'}}) }}
+            {{ form_errors(form.placement) }}
+          </div>
+        </div>
+
+        <div>
+          {{ form_label(form.notes, null, {'label_attr': {'class': 'block text-sm font-bold mb-2'}}) }}
+          {{ form_widget(form.notes, {'attr': {'class': 'w-full rounded-xl border border-slate-200 px-4 py-3 bg-white'}}) }}
+          {{ form_errors(form.notes) }}
+        </div>
+
+        {{ form_rest(form) }}
+
+        <button type="submit" class="btn-primary w-full sm:w-auto px-8 py-3">Send customization request</button>
+      {{ form_end(form) }}
+    </section>
+
+    <aside class="lg:col-span-4 space-y-5">
+      <section class="custom-surface rounded-3xl p-6 sm:p-7">
+        <h2 class="text-xl font-extrabold">My customization requests</h2>
+        <div class="mt-5 space-y-3">
+          {% for request in requests %}
+            <article class="rounded-2xl border border-slate-200 bg-white p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <strong class="block">{{ request.productType }}</strong>
+                  <span class="block mt-1 text-xs" style="color:#64748b !important;">{{ request.createdAt ? request.createdAt|date('M d, Y g:i A') : '' }}</span>
+                </div>
+                <span class="rounded-full px-3 py-1 text-xs font-bold" style="background:rgba(122,0,0,0.08); color:#7a0000 !important;">{{ request.status }}</span>
+              </div>
+              <p class="mt-3 text-sm leading-relaxed" style="color:#475569 !important;">
+                Fabric: {{ request.placement ?: 'Not specified' }}{% if request.size %} · Size/Fit: {{ request.size }}{% endif %}
+              </p>
+              {% if request.designSnapshot %}
+                <img src="{{ request.designSnapshot }}" alt="Submitted mockup" class="mt-3 w-full max-h-44 object-contain rounded-xl bg-slate-50 border border-slate-200">
+              {% endif %}
+              {% if request.staffResponse %}
+                <p class="mt-3 rounded-xl bg-slate-50 p-3 text-sm" style="color:#334155 !important;"><strong>Staff:</strong> {{ request.staffResponse }}</p>
+              {% endif %}
+            </article>
+          {% else %}
+            <p class="rounded-2xl border border-dashed border-slate-300 p-5 text-sm" style="color:#64748b !important;">No customization requests yet.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </aside>
+  </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    (function () {
+      var inputs = document.querySelectorAll('[data-custom-type-input]');
+      var previews = document.querySelectorAll('[data-custom-preview]');
+      var toolButtons = document.querySelectorAll('[data-design-tool]');
+      var textInput = document.querySelector('[data-design-text]');
+      var stickerPanel = document.querySelector('[data-sticker-panel]');
+      var fabricField = document.querySelector('[data-fabric-field]');
+      var fabricSelect = fabricField ? fabricField.querySelector('select') : null;
+      var form = document.querySelector('form[name="{{ form.vars.name }}"]');
+      var snapshotInput = document.querySelector('[data-design-snapshot]');
+      var selectedItem = null;
+      var activeTool = 'text';
+      var activeColor = '#7a0000';
+
+      function activeBoard() {
+        return Array.from(previews).find(function (preview) {
+          return !preview.classList.contains('is-hidden');
+        });
+      }
+
+      function syncPreview() {
+        var selected = 'T-shirt';
+        inputs.forEach(function (input) {
+          if (input.checked) selected = input.value;
+        });
+        previews.forEach(function (preview) {
+          preview.classList.toggle('is-hidden', preview.dataset.customPreview !== selected);
+        });
+        if (fabricField) {
+          var isAccessories = selected === 'Accessories';
+          fabricField.classList.toggle('hidden', isAccessories);
+          if (isAccessories && fabricSelect) fabricSelect.value = '';
+        }
+      }
+
+      function setTool(tool) {
+        activeTool = tool;
+        toolButtons.forEach(function (button) {
+          button.classList.toggle('is-active', button.dataset.designTool === tool);
+          button.style.color = button.dataset.designTool === tool ? '#ffffff' : '#0f172a';
+        });
+        if (stickerPanel) {
+          stickerPanel.classList.toggle('hidden', tool !== 'sticker');
+        }
+      }
+
+      function selectItem(item) {
+        document.querySelectorAll('.custom-design-item').forEach(function (node) {
+          node.classList.remove('is-selected');
+        });
+        selectedItem = item;
+        if (selectedItem) selectedItem.classList.add('is-selected');
+      }
+
+      function addItem(type, value) {
+        var board = activeBoard();
+        if (!board) return;
+        var layer = board.querySelector('[data-item-layer]');
+        var item = document.createElement('div');
+        item.className = 'custom-design-item';
+        item.dataset.type = type;
+        item.textContent = value;
+        item.style.color = activeColor;
+        item.style.left = '50%';
+        item.style.top = type === 'text' ? '48%' : '42%';
+        layer.appendChild(item);
+        makeDraggable(item);
+        selectItem(item);
+      }
+
+      function deleteSelectedItem() {
+        if (!selectedItem) return;
+        selectedItem.remove();
+        selectedItem = null;
+      }
+
+      function makeDraggable(item) {
+        var dragging = false;
+        var offsetX = 0;
+        var offsetY = 0;
+
+        item.addEventListener('pointerdown', function (event) {
+          dragging = true;
+          selectItem(item);
+          var rect = item.getBoundingClientRect();
+          offsetX = event.clientX - rect.left;
+          offsetY = event.clientY - rect.top;
+          item.setPointerCapture(event.pointerId);
+          event.preventDefault();
+        });
+
+        item.addEventListener('pointermove', function (event) {
+          if (!dragging) return;
+          var board = item.closest('[data-custom-preview]');
+          var boardRect = board.getBoundingClientRect();
+          var x = event.clientX - boardRect.left - offsetX + item.offsetWidth / 2;
+          var y = event.clientY - boardRect.top - offsetY + item.offsetHeight / 2;
+          item.style.left = Math.max(0, Math.min(boardRect.width, x)) + 'px';
+          item.style.top = Math.max(0, Math.min(boardRect.height, y)) + 'px';
+          item.style.transform = 'translate(-50%, -50%)';
+        });
+
+        item.addEventListener('pointerup', function () {
+          dragging = false;
+        });
+      }
+
+      function captureDesignSnapshot() {
+        var board = activeBoard();
+        if (!board || !snapshotInput) return;
+
+        var rect = board.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+
+        var maxWidth = 900;
+        var scale = rect.width > maxWidth ? maxWidth / rect.width : 1;
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.round(rect.width * scale);
+        canvas.height = Math.round(rect.height * scale);
+        var context = canvas.getContext('2d');
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        var image = board.querySelector('img');
+        if (image && image.complete) {
+          var imageRect = image.getBoundingClientRect();
+          context.drawImage(
+            image,
+            (imageRect.left - rect.left) * scale,
+            (imageRect.top - rect.top) * scale,
+            imageRect.width * scale,
+            imageRect.height * scale
+          );
+        }
+
+        board.querySelectorAll('.custom-design-item').forEach(function (item) {
+          var itemRect = item.getBoundingClientRect();
+          var x = (itemRect.left - rect.left + itemRect.width / 2) * scale;
+          var y = (itemRect.top - rect.top + itemRect.height / 2) * scale;
+          var fontSize = parseFloat(window.getComputedStyle(item).fontSize || '24') * scale;
+          context.font = '900 ' + fontSize + 'px Inter, Arial, sans-serif';
+          context.textAlign = 'center';
+          context.textBaseline = 'middle';
+          context.fillStyle = item.style.color || '#7a0000';
+          context.fillText(item.textContent, x, y);
+        });
+
+        snapshotInput.value = canvas.toDataURL('image/jpeg', 0.86);
+      }
+
+      inputs.forEach(function (input) {
+        input.addEventListener('change', syncPreview);
+      });
+
+      toolButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          setTool(button.dataset.designTool);
+        });
+      });
+
+      document.querySelector('[data-add-text]')?.addEventListener('click', function () {
+        setTool('text');
+        addItem('text', (textInput && textInput.value.trim()) || 'SKADOOSH');
+        if (textInput) textInput.value = '';
+      });
+
+      document.querySelector('[data-delete-selected]')?.addEventListener('click', deleteSelectedItem);
+
+      document.addEventListener('keydown', function (event) {
+        if ((event.key === 'Delete' || event.key === 'Backspace') && selectedItem && document.activeElement !== textInput) {
+          event.preventDefault();
+          deleteSelectedItem();
+        }
+      });
+
+      document.querySelectorAll('[data-design-sticker]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          setTool('sticker');
+          addItem('sticker', button.dataset.designSticker);
+        });
+      });
+
+      previews.forEach(function (preview) {
+        preview.addEventListener('click', function (event) {
+          if (!event.target.closest('.custom-design-item')) {
+            selectItem(null);
+          }
+        });
+      });
+
+      if (form) {
+        form.addEventListener('submit', captureDesignSnapshot);
+      }
+
+      syncPreview();
+      setTool('text');
+    })();
+  </script>
+{% endblock %}

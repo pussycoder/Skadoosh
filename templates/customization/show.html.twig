@@ -1,0 +1,110 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Customization Request - SKADOOSH{% endblock %}
+{% block page_title %}Customization Request{% endblock %}
+{% block breadcrumb_items %}
+    <a href="{{ path('app_customization_requests_index') }}" style="color: #7a0000 !important; text-decoration: none; font-weight: 500;">Customization Requests</a>
+    <span style="color: #94a3b8;">/</span>
+    <span style="color: #334155; font-weight: 500;">#{{ customizationRequest.id }}</span>
+{% endblock %}
+
+{% block body %}
+<div class="space-y-6">
+    <div class="bg-gradient-to-r from-[#7a0000] via-[#8a0000] to-[#9a0000] rounded-xl p-6 sm:p-8 text-white mb-6 shadow-xl">
+        <h1 class="text-3xl sm:text-4xl font-bold mb-2" style="color: #ffffff !important; font-weight: 800;">Request #{{ customizationRequest.id }}</h1>
+        <p class="text-base sm:text-lg" style="color: rgba(255, 255, 255, 0.95) !important;">Review design details and update the staff response.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section class="lg:col-span-7 card p-6 sm:p-8">
+            <h2 class="text-2xl font-bold mb-5">Customer Design Details</h2>
+            {% if customizationRequest.designSnapshot %}
+                <div class="mb-6 rounded-2xl border border-slate-200 bg-white p-4">
+                    <h3 class="text-lg font-bold mb-3">Submitted Design Mockup</h3>
+                    <img src="{{ customizationRequest.designSnapshot }}" alt="Customer submitted design mockup" class="w-full max-h-[28rem] object-contain rounded-xl bg-slate-50">
+                </div>
+            {% endif %}
+            <div class="overflow-x-auto">
+                <table class="table-modern w-full">
+                    <tbody>
+                        <tr>
+                            <th style="background:#f8fafc; padding:1rem;">Customer</th>
+                            <td style="padding:1rem;">{{ customizationRequest.customer ? customizationRequest.customer.name : 'Customer' }}</td>
+                        </tr>
+                        <tr>
+                            <th style="background:#f8fafc; padding:1rem;">Email</th>
+                            <td style="padding:1rem;">{{ customizationRequest.customer ? customizationRequest.customer.email : '' }}</td>
+                        </tr>
+                        <tr>
+                            <th style="background:#f8fafc; padding:1rem;">Product Type</th>
+                            <td style="padding:1rem;">{{ customizationRequest.productType }}</td>
+                        </tr>
+                        <tr>
+                            <th style="background:#f8fafc; padding:1rem;">Size / Fit</th>
+                            <td style="padding:1rem;">{{ customizationRequest.size ?: 'Not specified' }}</td>
+                        </tr>
+                        <tr>
+                            <th style="background:#f8fafc; padding:1rem;">Fabric</th>
+                            <td style="padding:1rem;">{{ customizationRequest.placement ?: 'Not specified' }}</td>
+                        </tr>
+                        <tr>
+                            <th style="background:#f8fafc; padding:1rem;">Extra Notes</th>
+                            <td style="padding:1rem; white-space:pre-line;">{{ customizationRequest.notes ?: 'None' }}</td>
+                        </tr>
+                        <tr>
+                            <th style="background:#f8fafc; padding:1rem;">Submitted</th>
+                            <td style="padding:1rem;">{{ customizationRequest.createdAt ? customizationRequest.createdAt|date('Y-m-d H:i') : '' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-6">
+                <a href="{{ path('app_customization_requests_index') }}" class="btn-secondary">Back to requests</a>
+            </div>
+        </section>
+
+        <aside class="lg:col-span-5 card p-6 sm:p-8">
+            <h2 class="text-2xl font-bold mb-5">Staff Handling</h2>
+            {% if canHandleRequest %}
+                {{ form_start(form, {'attr': {'class': 'space-y-5'}}) }}
+                    <div>
+                        {{ form_label(form.status, 'Status') }}
+                        {{ form_widget(form.status) }}
+                        {{ form_errors(form.status) }}
+                    </div>
+                    <div>
+                        {{ form_label(form.assignedTo, 'Assigned Staff') }}
+                        {{ form_widget(form.assignedTo) }}
+                        {{ form_errors(form.assignedTo) }}
+                    </div>
+                    <div>
+                        {{ form_label(form.staffResponse, 'Staff Response') }}
+                        {{ form_widget(form.staffResponse) }}
+                        {{ form_errors(form.staffResponse) }}
+                    </div>
+                    <button type="submit" class="btn-primary w-full">Update request</button>
+                {{ form_end(form) }}
+            {% else %}
+                <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed" style="color:#92400e !important;">
+                    Admin accounts can view customization requests, but only staff accounts can update the status, assigned staff, and response.
+                </div>
+                <dl class="mt-5 space-y-3 text-sm">
+                    <div>
+                        <dt class="font-bold">Current status</dt>
+                        <dd>{{ customizationRequest.status }}</dd>
+                    </div>
+                    <div>
+                        <dt class="font-bold">Assigned staff</dt>
+                        <dd>{{ customizationRequest.assignedTo ? (customizationRequest.assignedTo.fullName ?: customizationRequest.assignedTo.username) : 'Unassigned' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="font-bold">Staff response</dt>
+                        <dd style="white-space:pre-line;">{{ customizationRequest.staffResponse ?: 'No response yet.' }}</dd>
+                    </div>
+                </dl>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+{% endblock %}

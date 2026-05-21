@@ -1,0 +1,92 @@
+{% extends 'admin_base.html.twig' %}
+
+{% block title %}Customization Requests - SKADOOSH{% endblock %}
+{% block page_title %}Customization Requests{% endblock %}
+{% block page_subtitle %}Review customer T-shirt and accessory design requests{% endblock %}
+
+{% block body %}
+<div class="space-y-6">
+    <div class="bg-gradient-to-r from-[#7a0000] via-[#8a0000] to-[#9a0000] rounded-xl p-6 sm:p-8 text-white mb-6 shadow-xl">
+        <h1 class="text-3xl sm:text-4xl font-bold mb-2" style="color: #ffffff !important; font-weight: 800;">Customization Requests</h1>
+        <p class="text-base sm:text-lg" style="color: rgba(255, 255, 255, 0.95) !important;">Staff can receive, review, and update customer design requests here.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card p-4">
+            <p class="text-sm font-medium">Total Requests</p>
+            <p class="text-2xl font-bold">{{ requests|length }}</p>
+        </div>
+        <div class="card p-4">
+            <p class="text-sm font-medium">Pending</p>
+            <p class="text-2xl font-bold">{{ requests|filter(item => item.status == 'Pending')|length }}</p>
+        </div>
+        <div class="card p-4">
+            <p class="text-sm font-medium">Reviewing</p>
+            <p class="text-2xl font-bold">{{ requests|filter(item => item.status == 'Reviewing')|length }}</p>
+        </div>
+        <div class="card p-4">
+            <p class="text-sm font-medium">Completed</p>
+            <p class="text-2xl font-bold">{{ requests|filter(item => item.status == 'Completed')|length }}</p>
+        </div>
+    </div>
+
+    <div class="card overflow-hidden">
+        {% if requests is empty %}
+            <div class="px-6 py-12 text-center">
+                <h3 class="text-sm font-medium">No customization requests found</h3>
+                <p class="mt-1 text-sm" style="color:#64748b !important;">Customer requests will appear here after submission.</p>
+            </div>
+        {% else %}
+            <table id="customizationRequestsTable" class="min-w-full divide-y divide-gray-200" style="width:100%;">
+                <thead class="bg-gradient-to-r from-[#7a0000] via-[#8a0000] to-[#9a0000]">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider" style="color:#ffffff !important;">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider" style="color:#ffffff !important;">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider" style="color:#ffffff !important;">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider" style="color:#ffffff !important;">Fabric</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider" style="color:#ffffff !important;">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider" style="color:#ffffff !important;">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider" style="color:#ffffff !important;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for request in requests %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">#{{ request.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-bold">{{ request.customer ? request.customer.name : 'Customer' }}</div>
+                            <div class="text-xs" style="color:#64748b !important;">{{ request.customer ? request.customer.email : '' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">{{ request.productType }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">{{ request.placement ?: 'Not specified' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background:rgba(122,0,0,0.08) !important; color:#7a0000 !important; font-weight:600;">
+                                {{ request.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">{{ request.createdAt ? request.createdAt|date('Y-m-d') : '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{{ path('app_customization_requests_show', {'id': request.id}) }}" class="inline-flex items-center px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    if (document.getElementById('customizationRequestsTable')) {
+        $('#customizationRequestsTable').DataTable({
+            order: [[0, 'desc']],
+            pageLength: 25,
+            autoWidth: false
+        });
+    }
+});
+</script>
+{% endblock %}

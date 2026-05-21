@@ -58,19 +58,21 @@
         color: #475569 !important;
     }
 
-    /* Navbar visibility */
-    header {
-        background: #ffffff !important;
-        border-bottom: 2px solid #7a0000 !important;
+    /* Keep ecommerce navbar visible on the login page */
+    .sk-site-header {
+        background: rgba(8, 13, 24, 0.96) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
     }
 
-    header a {
-        color: #1e293b !important;
-        font-weight: 600 !important;
+    .sk-site-header .sk-nav-link,
+    .sk-site-header a.sk-nav-link,
+    .sk-site-header .sk-icon-button {
+        color: #f8fafc !important;
     }
 
-    header a:hover {
-        color: #7a0000 !important;
+    .sk-site-header .sk-icon-button {
+        border-color: rgba(255, 255, 255, 0.18) !important;
+        background: rgba(255, 255, 255, 0.06) !important;
     }
 
     .btn-primary {

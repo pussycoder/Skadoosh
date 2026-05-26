@@ -84,6 +84,41 @@ class ApiController extends AbstractController
         ]);
     }
 
+    #[Route('/customer/device-token', name: 'api_customer_device_token', methods: ['POST'])]
+    public function saveDeviceToken(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_CUSTOMER');
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $payload = json_decode($request->getContent(), true);
+        if (!is_array($payload)) {
+            return $this->json(['success' => false, 'message' => 'Invalid JSON payload'], 400);
+        }
+
+        $token = trim((string) ($payload['token'] ?? ''));
+        $platform = trim((string) ($payload['platform'] ?? 'android'));
+        if ($token === '') {
+            return $this->json(['success' => false, 'message' => 'Device token is required'], 422);
+        }
+
+        $user->setFcmToken($token);
+        $user->setFcmPlatform(substr($platform !== '' ? $platform : 'android', 0, 30));
+        $user->setFcmTokenUpdatedAt(new \DateTimeImmutable());
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Device token saved successfully',
+            'data' => [
+                'platform' => $user->getFcmPlatform(),
+                'saved' => true,
+            ],
+        ]);
+    }
+
     #[Route('/customer/orders', name: 'api_customer_orders', methods: ['GET'])]
     public function orders(OrdersRepository $ordersRepository): JsonResponse
     {
@@ -166,7 +201,12 @@ class ApiController extends AbstractController
             $name = $product->getName();
             $price = (float) $product->getPrice();
             $total += $price * $quantity;
-            $summary[] = sprintf('%s x%d (Php %0.2f)', $name, $quantity, $price);
+            $optionParts = array_filter([
+                $this->cartOptionLabel($item['selectedColor'] ?? $item['color'] ?? null, 'Color'),
+                $this->cartOptionLabel($item['selectedSize'] ?? $item['size'] ?? null, 'Size'),
+            ]);
+            $options = $optionParts === [] ? '' : ' [' . implode(', ', $optionParts) . ']';
+            $summary[] = sprintf('%s%s x%d (Php %0.2f)', $name, $options, $quantity, $price);
         }
 
         if ($summary === []) {
@@ -464,6 +504,7 @@ class ApiController extends AbstractController
             'total_price' => (float) $order->getTotalPrice(),
             'ordered_products' => $order->getOrderedProducts(),
             'created_at' => $order->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            'updated_at' => $order->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
         ];
     }
 
@@ -498,6 +539,20 @@ class ApiController extends AbstractController
         }
 
         return $candidate;
+    }
+
+    private function cartOptionLabel(mixed $value, string $label): ?string
+    {
+        if (is_array($value)) {
+            $value = $value['name'] ?? $value['label'] ?? $value['code'] ?? null;
+        }
+
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        return sprintf('%s: %s', $label, $value);
     }
 
     private function nullableTrim(mixed $value): ?string

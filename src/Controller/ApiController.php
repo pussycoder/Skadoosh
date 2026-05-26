@@ -10,11 +10,13 @@ use App\Repository\OrdersRepository;
 use App\Repository\ProductsRepository;
 use App\Service\VerificationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/api')]
 class ApiController extends AbstractController
@@ -256,6 +258,13 @@ class ApiController extends AbstractController
         $customizationRequest->setPlacement($this->nullableTrim($payload['placement'] ?? null));
         $customizationRequest->setDesignDescription($designDescription);
         $customizationRequest->setNotes($this->nullableTrim($payload['notes'] ?? null));
+        $snapshotPath = $this->saveDesignSnapshot((string) ($payload['designSnapshot'] ?? $payload['design_snapshot'] ?? ''));
+        if (!$snapshotPath) {
+            $snapshotPath = $this->saveGeneratedDesignSnapshot($payload['designMockup'] ?? $payload['design_mockup'] ?? null, $productType);
+        }
+        if ($snapshotPath) {
+            $customizationRequest->setDesignSnapshot($snapshotPath);
+        }
 
         $entityManager->persist($customizationRequest);
         $entityManager->flush();
@@ -342,6 +351,80 @@ class ApiController extends AbstractController
         ], 201);
     }
 
+    #[Route('/auth/google', name: 'api_auth_google', methods: ['POST'])]
+    public function googleAuth(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher,
+        HttpClientInterface $httpClient,
+        JWTTokenManagerInterface $jwtManager
+    ): JsonResponse {
+        $payload = json_decode($request->getContent(), true);
+        if (!is_array($payload)) {
+            return $this->json(['success' => false, 'message' => 'Invalid JSON payload'], 400);
+        }
+
+        $idToken = trim((string) ($payload['idToken'] ?? ''));
+        if ($idToken === '') {
+            return $this->json(['success' => false, 'message' => 'Google ID token is required'], 422);
+        }
+
+        try {
+            $googleResponse = $httpClient->request('GET', 'https://oauth2.googleapis.com/tokeninfo', [
+                'query' => ['id_token' => $idToken],
+            ]);
+            $googleData = $googleResponse->toArray(false);
+        } catch (\Throwable) {
+            return $this->json(['success' => false, 'message' => 'Unable to verify Google sign-in token'], 401);
+        }
+
+        if ($googleResponse->getStatusCode() !== 200) {
+            return $this->json(['success' => false, 'message' => 'Invalid Google sign-in token'], 401);
+        }
+
+        $audience = (string) ($googleData['aud'] ?? '');
+        $allowedAudiences = array_filter([
+            $_ENV['GOOGLE_CLIENT_ID'] ?? $_SERVER['GOOGLE_CLIENT_ID'] ?? null,
+            $_ENV['OAUTH_GOOGLE_CLIENT_ID'] ?? $_SERVER['OAUTH_GOOGLE_CLIENT_ID'] ?? null,
+        ]);
+        if ($allowedAudiences !== [] && !in_array($audience, $allowedAudiences, true)) {
+            return $this->json(['success' => false, 'message' => 'Google token audience is not allowed'], 401);
+        }
+
+        $email = strtolower(trim((string) ($googleData['email'] ?? '')));
+        $googleId = trim((string) ($googleData['sub'] ?? ''));
+        $name = trim((string) ($googleData['name'] ?? $email));
+        $emailVerified = filter_var($googleData['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        if ($googleId === '' || $email === '' || !$emailVerified || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->json(['success' => false, 'message' => 'Google account did not return a verified email'], 401);
+        }
+
+        $userRepository = $entityManager->getRepository(User::class);
+        $user = $userRepository->findOneBy(['googleId' => $googleId])
+            ?? $userRepository->findOneBy(['email' => $email]);
+
+        if (!$user instanceof User) {
+            $user = new User();
+            $user->setUsername($this->uniqueGoogleUsername($email, $entityManager));
+            $user->setEmail($email);
+            $user->setRoles(['ROLE_CUSTOMER']);
+            $user->setPassword($passwordHasher->hashPassword($user, bin2hex(random_bytes(24))));
+            $entityManager->persist($user);
+        }
+
+        $user->setGoogleId($googleId);
+        $user->setFullName($name !== '' ? $name : $user->getName());
+        $user->setIsVerified(true);
+        $user->setVerificationToken(null);
+        $entityManager->flush();
+
+        return $this->json([
+            'token' => $jwtManager->create($user),
+            'user' => $this->formatUser($user),
+        ]);
+    }
+
     private function formatProduct(Products $product): array
     {
         return [
@@ -394,6 +477,7 @@ class ApiController extends AbstractController
             'placement' => $request->getPlacement(),
             'design_description' => $request->getDesignDescription(),
             'notes' => $request->getNotes(),
+            'design_snapshot' => $request->getDesignSnapshot(),
             'status' => $request->getStatus(),
             'staff_response' => $request->getStaffResponse(),
             'created_at' => $request->getCreatedAt()?->format(\DateTimeInterface::ATOM),
@@ -401,11 +485,108 @@ class ApiController extends AbstractController
         ];
     }
 
+    private function uniqueGoogleUsername(string $email, EntityManagerInterface $entityManager): string
+    {
+        $base = preg_replace('/[^a-z0-9_.-]+/i', '_', strstr($email, '@', true) ?: 'google_user');
+        $base = trim((string) $base, '._-') ?: 'google_user';
+        $candidate = $base;
+        $suffix = 1;
+        $repository = $entityManager->getRepository(User::class);
+
+        while ($repository->findOneBy(['username' => $candidate])) {
+            $candidate = sprintf('%s_%d', $base, ++$suffix);
+        }
+
+        return $candidate;
+    }
+
     private function nullableTrim(mixed $value): ?string
     {
         $trimmed = trim((string) $value);
 
         return $trimmed === '' ? null : $trimmed;
+    }
+
+    private function saveDesignSnapshot(string $snapshot): ?string
+    {
+        if (preg_match('/^data:image\/svg\+xml;base64,(.+)$/', $snapshot, $matches)) {
+            $svgData = base64_decode($matches[1], true);
+            if ($svgData === false) {
+                return null;
+            }
+
+            return $this->writeDesignSnapshotFile($svgData, 'svg');
+        }
+
+        if (!preg_match('/^data:image\/(?:png|jpeg|jpg);base64,(.+)$/', $snapshot, $matches)) {
+            return null;
+        }
+
+        $imageData = base64_decode($matches[1], true);
+        if ($imageData === false) {
+            return null;
+        }
+
+        return $this->writeDesignSnapshotFile($imageData, 'jpg');
+    }
+
+    private function saveGeneratedDesignSnapshot(mixed $mockup, string $productType): ?string
+    {
+        if (!is_array($mockup)) {
+            return null;
+        }
+
+        $width = max(260, min(900, (int) ($mockup['width'] ?? 360)));
+        $height = max(260, min(900, (int) ($mockup['height'] ?? 420)));
+        $items = is_array($mockup['items'] ?? null) ? $mockup['items'] : [];
+        $baseLabel = $productType === 'Accessories' ? 'Base tote bag' : 'Base T-shirt';
+        $baseShape = $productType === 'Accessories'
+            ? '<rect x="32%" y="28%" width="36%" height="48%" rx="18" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/><path d="M40 95 C40 52 60 30 80 30 C100 30 120 52 120 95" transform="translate(' . ($width * 0.3) . ' ' . ($height * 0.04) . ') scale(' . ($width / 360) . ')" fill="none" stroke="#cbd5e1" stroke-width="10" stroke-linecap="round"/>'
+            : '<path d="M30 110 C48 55 82 35 125 42 L150 72 L175 42 C218 35 252 55 270 110 L232 132 L222 88 L222 292 L78 292 L78 88 L68 132 Z" transform="translate(' . (($width - 300) / 2) . ' ' . (($height - 330) / 2) . ') scale(' . min($width / 330, $height / 360) . ')" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>';
+
+        $svg = [
+            '<svg xmlns="http://www.w3.org/2000/svg" width="' . $width . '" height="' . $height . '" viewBox="0 0 ' . $width . ' ' . $height . '">',
+            '<rect width="100%" height="100%" fill="#ffffff"/>',
+            '<rect x="8" y="8" width="' . ($width - 16) . '" height="' . ($height - 16) . '" rx="28" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>',
+            $baseShape,
+            '<text x="' . ($width / 2) . '" y="' . ($height - 28) . '" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#7a0000">' . htmlspecialchars($baseLabel, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</text>',
+        ];
+
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $value = trim((string) ($item['value'] ?? ''));
+            if ($value === '') {
+                continue;
+            }
+
+            $type = (string) ($item['type'] ?? 'text');
+            $fontSize = $type === 'sticker' ? 42 : 26;
+            $x = max(0, min($width, (float) ($item['x'] ?? ($width / 2))));
+            $y = max(0, min($height, (float) ($item['y'] ?? ($height / 2))));
+            $svg[] = '<text x="' . $x . '" y="' . $y . '" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="' . $fontSize . '" font-weight="900" fill="#7a0000">' . htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</text>';
+        }
+
+        $svg[] = '</svg>';
+
+        return $this->writeDesignSnapshotFile(implode('', $svg), 'svg');
+    }
+
+    private function writeDesignSnapshotFile(string $contents, string $extension): ?string
+    {
+        $relativeDirectory = '/uploads/customization_designs';
+        $directory = $this->getParameter('kernel.project_dir') . '/public' . $relativeDirectory;
+        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+            return null;
+        }
+
+        $extension = $extension === 'svg' ? 'svg' : 'jpg';
+        $filename = 'custom-design-' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $extension;
+        $path = $directory . '/' . $filename;
+
+        return file_put_contents($path, $contents) === false ? null : $relativeDirectory . '/' . $filename;
     }
 }
 

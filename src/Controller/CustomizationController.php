@@ -6,7 +6,6 @@ use App\Entity\CustomizationRequest;
 use App\Entity\User;
 use App\Form\CustomizationRequestStatusType;
 use App\Form\CustomizationRequestType;
-use App\Service\FcmNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,10 +15,6 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/customization')]
 class CustomizationController extends AbstractController
 {
-    public function __construct(private FcmNotificationService $fcmNotificationService)
-    {
-    }
-
     #[Route('', name: 'app_customization_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -101,8 +96,6 @@ class CustomizationController extends AbstractController
     {
         $this->denyUnlessStaffOrAdmin();
 
-        $previousStatus = $customizationRequest->getStatus();
-        $previousStaffResponse = $customizationRequest->getStaffResponse();
         $form = $this->createForm(CustomizationRequestStatusType::class, $customizationRequest);
         $form->handleRequest($request);
         $canHandleRequest = $this->canHandleCustomizationRequests();
@@ -113,13 +106,6 @@ class CustomizationController extends AbstractController
             }
 
             $entityManager->flush();
-
-            if (
-                $previousStatus !== $customizationRequest->getStatus()
-                || $previousStaffResponse !== $customizationRequest->getStaffResponse()
-            ) {
-                $this->notifyCustomerCustomizationUpdated($customizationRequest);
-            }
 
             $this->addFlash('success', 'Customization request updated.');
 
@@ -200,34 +186,5 @@ class CustomizationController extends AbstractController
         }
 
         return 'Customization request was not saved: ' . implode(' ', array_unique($errors));
-    }
-
-    private function notifyCustomerCustomizationUpdated(CustomizationRequest $customizationRequest): void
-    {
-        $customer = $customizationRequest->getCustomer();
-        $fcmToken = $customer?->getFcmToken();
-        if (!$customer instanceof User || !$fcmToken) {
-            return;
-        }
-
-        $body = sprintf('Your customization request is now %s.', $customizationRequest->getStatus());
-        if ($customizationRequest->getStaffResponse()) {
-            $body .= ' Staff added a response.';
-        }
-
-        try {
-            $this->fcmNotificationService->sendToToken(
-                $fcmToken,
-                'Customization Update',
-                $body,
-                [
-                    'type' => 'customization_update',
-                    'requestId' => (string) $customizationRequest->getId(),
-                    'status' => $customizationRequest->getStatus(),
-                ]
-            );
-        } catch (\Throwable) {
-            $this->addFlash('warning', 'Customization request was updated, but the push notification could not be sent.');
-        }
     }
 }

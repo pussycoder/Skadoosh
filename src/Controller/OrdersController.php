@@ -7,7 +7,6 @@ use App\Entity\Orders;
 use App\Entity\User;
 use App\Form\OrdersType;
 use App\Repository\OrdersRepository;
-use App\Service\FcmNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,8 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class OrdersController extends AbstractController
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private FcmNotificationService $fcmNotificationService
+        private EntityManagerInterface $entityManager
     ) {
     }
 
@@ -90,7 +88,6 @@ final class OrdersController extends AbstractController
         // Require authentication (staff or admin)
         $this->denyAccessUnlessGranted('ROLE_USER');
 
-        $previousStatus = $order->getStatus();
         $form = $this->createForm(OrdersType::class, $order);
         $form->handleRequest($request);
 
@@ -108,10 +105,6 @@ final class OrdersController extends AbstractController
 
             // Log activity
             $this->logActivity('Update', 'Order', $order->getId(), 'Order updated: ' . $order->getCustomerName());
-
-            if ($previousStatus !== $order->getStatus()) {
-                $this->notifyCustomerOrderStatusChanged($order);
-            }
 
             $this->addFlash('success', 'Order updated successfully!');
             return $this->redirectToRoute('app_orders_index', [], Response::HTTP_SEE_OTHER);
@@ -173,29 +166,5 @@ final class OrdersController extends AbstractController
 
         $this->entityManager->persist($log);
         $this->entityManager->flush();
-    }
-
-    private function notifyCustomerOrderStatusChanged(Orders $order): void
-    {
-        $customer = $order->getProcessedBy();
-        $fcmToken = $customer?->getFcmToken();
-        if (!$customer instanceof User || !$fcmToken) {
-            return;
-        }
-
-        try {
-            $this->fcmNotificationService->sendToToken(
-                $fcmToken,
-                'Order Update',
-                sprintf('Your order #%d status is now %s.', $order->getId(), $order->getStatus()),
-                [
-                    'type' => 'order_update',
-                    'orderId' => (string) $order->getId(),
-                    'status' => (string) $order->getStatus(),
-                ]
-            );
-        } catch (\Throwable) {
-            $this->addFlash('warning', 'Order was updated, but the push notification could not be sent.');
-        }
     }
 }

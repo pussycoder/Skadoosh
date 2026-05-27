@@ -24,6 +24,6 @@ yarn-error.log
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
 
-###> firebase/php-jwt ###
+###> firebase service account ###
 /config/firebase/service-account.json
-###< firebase/php-jwt ###
+###< firebase service account ###

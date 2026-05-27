@@ -84,41 +84,6 @@ class ApiController extends AbstractController
         ]);
     }
 
-    #[Route('/customer/device-token', name: 'api_customer_device_token', methods: ['POST'])]
-    public function saveDeviceToken(Request $request, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $this->denyAccessUnlessGranted('ROLE_CUSTOMER');
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            return $this->json(['success' => false, 'message' => 'Unauthenticated'], 401);
-        }
-
-        $payload = json_decode($request->getContent(), true);
-        if (!is_array($payload)) {
-            return $this->json(['success' => false, 'message' => 'Invalid JSON payload'], 400);
-        }
-
-        $token = trim((string) ($payload['token'] ?? ''));
-        $platform = trim((string) ($payload['platform'] ?? 'android'));
-        if ($token === '') {
-            return $this->json(['success' => false, 'message' => 'Device token is required'], 422);
-        }
-
-        $user->setFcmToken($token);
-        $user->setFcmPlatform(substr($platform !== '' ? $platform : 'android', 0, 30));
-        $user->setFcmTokenUpdatedAt(new \DateTimeImmutable());
-        $entityManager->flush();
-
-        return $this->json([
-            'success' => true,
-            'message' => 'Device token saved successfully',
-            'data' => [
-                'platform' => $user->getFcmPlatform(),
-                'saved' => true,
-            ],
-        ]);
-    }
-
     #[Route('/customer/orders', name: 'api_customer_orders', methods: ['GET'])]
     public function orders(OrdersRepository $ordersRepository): JsonResponse
     {

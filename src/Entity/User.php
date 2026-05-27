@@ -54,15 +54,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $googleId = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $fcmToken = null;
-
-    #[ORM\Column(length: 30, nullable: true)]
-    private ?string $fcmPlatform = null;
-
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $fcmTokenUpdatedAt = null;
-
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $createdAt = null;
 
@@ -220,39 +211,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setGoogleId(?string $googleId): static
     {
         $this->googleId = $googleId;
-        return $this;
-    }
-
-    public function getFcmToken(): ?string
-    {
-        return $this->fcmToken;
-    }
-
-    public function setFcmToken(?string $fcmToken): static
-    {
-        $this->fcmToken = $fcmToken;
-        return $this;
-    }
-
-    public function getFcmPlatform(): ?string
-    {
-        return $this->fcmPlatform;
-    }
-
-    public function setFcmPlatform(?string $fcmPlatform): static
-    {
-        $this->fcmPlatform = $fcmPlatform;
-        return $this;
-    }
-
-    public function getFcmTokenUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->fcmTokenUpdatedAt;
-    }
-
-    public function setFcmTokenUpdatedAt(?\DateTimeImmutable $fcmTokenUpdatedAt): static
-    {
-        $this->fcmTokenUpdatedAt = $fcmTokenUpdatedAt;
         return $this;
     }
 

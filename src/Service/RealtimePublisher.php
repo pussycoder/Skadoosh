@@ -48,6 +48,7 @@ class RealtimePublisher
     private function publish(string $event, array $payload, array $rooms): void
     {
         $payload['rooms'] = $rooms;
+        $payload['stats'] = $this->stats();
 
         $this->entityManager->persist(new RealtimeEvent($event, $payload));
         $this->entityManager->flush();
@@ -96,6 +97,60 @@ class RealtimePublisher
             'staff_response' => $request->getStaffResponse(),
             'created_at' => $request->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             'updated_at' => $request->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
+        ];
+    }
+
+    private function stats(): array
+    {
+        $orders = $this->entityManager->getRepository(Orders::class)->findAll();
+        $customizationRequests = $this->entityManager->getRepository(CustomizationRequest::class)->findAll();
+
+        $orderStats = [
+            'total' => count($orders),
+            'pending' => 0,
+            'processing' => 0,
+            'completed' => 0,
+            'cancelled' => 0,
+            'revenue' => 0.0,
+        ];
+
+        foreach ($orders as $order) {
+            if (!$order instanceof Orders) {
+                continue;
+            }
+
+            $status = strtolower((string) $order->getStatus());
+            if (array_key_exists($status, $orderStats)) {
+                $orderStats[$status]++;
+            }
+            $orderStats['revenue'] += (float) $order->getTotalPrice();
+        }
+
+        $customizationStats = [
+            'total' => count($customizationRequests),
+            'pending' => 0,
+            'reviewing' => 0,
+            'approved' => 0,
+            'completed' => 0,
+            'declined' => 0,
+        ];
+
+        foreach ($customizationRequests as $request) {
+            if (!$request instanceof CustomizationRequest) {
+                continue;
+            }
+
+            $status = strtolower($request->getStatus());
+            if (array_key_exists($status, $customizationStats)) {
+                $customizationStats[$status]++;
+            }
+        }
+
+        $orderStats['revenue'] = round($orderStats['revenue'], 2);
+
+        return [
+            'orders' => $orderStats,
+            'customization' => $customizationStats,
         ];
     }
 }

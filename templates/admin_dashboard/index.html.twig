@@ -53,13 +53,13 @@
             <div class="flex items-center justify-between">
                 <div class="flex-1">
                     <p class="text-sm font-semibold mb-1" style="color: #64748b !important; font-weight: 500;">Total Orders</p>
-                    <p class="text-3xl font-bold mb-2" style="color: #0f172a !important; font-weight: 700; letter-spacing: -0.02em;">{{ totalOrders }}</p>
+                    <p class="text-3xl font-bold mb-2" data-realtime-stat="orders.total" style="color: #0f172a !important; font-weight: 700; letter-spacing: -0.02em;">{{ totalOrders }}</p>
                     <div class="flex items-center text-sm">
                         <span class="font-medium flex items-center" style="color: #0f766e !important; font-weight: 500;">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                             </svg>
-                            {{ pendingOrders }} pending
+                            <span data-realtime-stat="orders.pending">{{ pendingOrders }}</span>&nbsp;pending
                         </span>
                     </div>
                 </div>
@@ -76,13 +76,13 @@
             <div class="flex items-center justify-between">
                 <div class="flex-1">
                     <p class="text-sm font-semibold mb-1" style="color: #64748b !important; font-weight: 500;">Total Revenue</p>
-                    <p class="text-3xl font-bold mb-2" style="color: #0f172a !important; font-weight: 700; letter-spacing: -0.02em;">₱{{ totalRevenue|number_format(2, '.', ',') }}</p>
+                    <p class="text-3xl font-bold mb-2" data-realtime-stat="orders.revenue" data-realtime-format="currency" style="color: #0f172a !important; font-weight: 700; letter-spacing: -0.02em;">₱{{ totalRevenue|number_format(2, '.', ',') }}</p>
                     <div class="flex items-center text-sm">
                         <span class="font-medium flex items-center" style="color: #065f46 !important; font-weight: 500;">
                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                             </svg>
-                            {{ completedOrders }} completed
+                            <span data-realtime-stat="orders.completed">{{ completedOrders }}</span>&nbsp;completed
                         </span>
                     </div>
                 </div>
@@ -145,7 +145,7 @@
             <div class="space-y-4">
                 {% if recentOrders|length > 0 %}
                     {% for order in recentOrders %}
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg" style="background: #f8fafc !important;">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg" data-order-row="{{ order.id }}" style="background: #f8fafc !important;">
                         <div class="flex items-center space-x-3">
                             <div class="w-8 h-8 {% if order.status == 'Completed' %}bg-green-100{% elseif order.status == 'Processing' %}bg-yellow-100{% elseif order.status == 'Pending' %}bg-blue-100{% else %}bg-red-100{% endif %} rounded-full flex items-center justify-center">
                                 {% if order.status == 'Completed' %}
@@ -168,8 +168,9 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-sm font-semibold" style="color: #0f172a !important; font-weight: 700;">₱{{ order.totalPrice|number_format(2, '.', ',') }}</p>
+                            <p class="text-sm font-semibold" data-order-total style="color: #0f172a !important; font-weight: 700;">₱{{ order.totalPrice|number_format(2, '.', ',') }}</p>
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" 
+                                data-order-status
                                 style="{% if order.status == 'Completed' %}background: #d1fae5 !important; color: #065f46 !important;
                                 {% elseif order.status == 'Processing' %}background: #fef3c7 !important; color: #92400e !important;
                                 {% elseif order.status == 'Pending' %}background: #dbeafe !important; color: #1e40af !important;

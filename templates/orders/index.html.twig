@@ -35,7 +35,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Orders</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ orders|length }}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white" data-realtime-stat="orders.total">{{ orders|length }}</p>
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white" data-realtime-stat="orders.pending">
                         {{ orders|filter(order => order.status == 'Pending')|length }}
                     </p>
                 </div>
@@ -65,7 +65,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Completed</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white" data-realtime-stat="orders.completed">
                         {{ orders|filter(order => order.status == 'Completed')|length }}
                     </p>
                 </div>
@@ -81,7 +81,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white" data-realtime-stat="orders.revenue" data-realtime-format="currency">
                         ₱{% set total = 0 %}{% for order in orders %}{% set total = total + order.totalPrice %}{% endfor %}{{ total|number_format(2, '.', ',') }}
                     </p>
                 </div>
@@ -107,7 +107,7 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             {% for order in orders %}
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr class="hover:bg-gray-50 transition-colors" data-order-row="{{ order.id }}">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold" style="color: #0f172a !important; font-weight: 600;">
                     #{{ order.id }}
                 </td>
@@ -134,29 +134,29 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     {% if order.status == 'Pending' %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background: #fef3c7 !important; color: #92400e !important; font-weight: 600;">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" data-order-status style="background: #fef3c7 !important; color: #92400e !important; font-weight: 600;">
                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
                             Pending
                         </span>
                     {% elseif order.status == 'Processing' %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background: #dbeafe !important; color: #1e40af !important; font-weight: 600;">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" data-order-status style="background: #dbeafe !important; color: #1e40af !important; font-weight: 600;">
                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/></svg>
                             Processing
                         </span>
                     {% elseif order.status == 'Completed' %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background: #d1fae5 !important; color: #065f46 !important; font-weight: 600;">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" data-order-status style="background: #d1fae5 !important; color: #065f46 !important; font-weight: 600;">
                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                             Completed
                         </span>
                     {% else %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background: #fee2e2 !important; color: #991b1b !important; font-weight: 600;">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" data-order-status style="background: #fee2e2 !important; color: #991b1b !important; font-weight: 600;">
                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
                             {{ order.status }}
                         </span>
                     {% endif %}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-bold" style="color: #0f172a !important; font-weight: 700;">₱{{ order.totalPrice|number_format(2, '.', ',') }}</div>
+                    <div class="text-sm font-bold" data-order-total style="color: #0f172a !important; font-weight: 700;">₱{{ order.totalPrice|number_format(2, '.', ',') }}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-semibold" style="color: #0f172a !important; font-weight: 600;">{{ order.createdAt ? order.createdAt|date('Y-m-d') : '' }}</div>

@@ -1717,6 +1717,96 @@
                 }
             }
 
+            function formatCurrency(value) {
+                const amount = Number(value || 0);
+                return '₱' + amount.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            function updateRealtimeStats(stats) {
+                if (!stats || typeof stats !== 'object') {
+                    return;
+                }
+
+                document.querySelectorAll('[data-realtime-stat]').forEach((element) => {
+                    const path = element.dataset.realtimeStat.split('.');
+                    let value = stats;
+                    path.forEach((part) => {
+                        value = value && Object.prototype.hasOwnProperty.call(value, part) ? value[part] : undefined;
+                    });
+
+                    if (value === undefined || value === null) {
+                        return;
+                    }
+
+                    element.textContent = element.dataset.realtimeFormat === 'currency'
+                        ? formatCurrency(value)
+                        : value;
+                });
+            }
+
+            function orderStatusHtml(status) {
+                if (status === 'Pending') {
+                    return '<svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>Pending';
+                }
+                if (status === 'Processing') {
+                    return '<svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/></svg>Processing';
+                }
+                if (status === 'Completed') {
+                    return '<svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>Completed';
+                }
+
+                return '<svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>' + status;
+            }
+
+            function orderStatusStyle(status) {
+                if (status === 'Pending') {
+                    return 'background: #fef3c7 !important; color: #92400e !important; font-weight: 600;';
+                }
+                if (status === 'Processing') {
+                    return 'background: #dbeafe !important; color: #1e40af !important; font-weight: 600;';
+                }
+                if (status === 'Completed') {
+                    return 'background: #d1fae5 !important; color: #065f46 !important; font-weight: 600;';
+                }
+
+                return 'background: #fee2e2 !important; color: #991b1b !important; font-weight: 600;';
+            }
+
+            function updateOrderRow(order) {
+                if (!order || !order.id) {
+                    return;
+                }
+
+                document.querySelectorAll('[data-order-row="' + order.id + '"]').forEach((row) => {
+                    const status = row.querySelector('[data-order-status]');
+                    if (status && order.status) {
+                        status.innerHTML = orderStatusHtml(order.status);
+                        status.style.cssText = orderStatusStyle(order.status);
+                    }
+
+                    const total = row.querySelector('[data-order-total]');
+                    if (total && order.total_price !== undefined) {
+                        total.textContent = formatCurrency(order.total_price);
+                    }
+                });
+            }
+
+            function updateCustomizationRow(request) {
+                if (!request || !request.id) {
+                    return;
+                }
+
+                document.querySelectorAll('[data-customization-row="' + request.id + '"]').forEach((row) => {
+                    const status = row.querySelector('[data-customization-status]');
+                    if (status && request.status) {
+                        status.textContent = request.status;
+                    }
+                });
+            }
+
             function connectRealtime() {
                 if (!window.EventSource) {
                     console.warn('[Skadoosh realtime] EventSource is not supported by this browser.');
@@ -1727,6 +1817,8 @@
 
                 source.addEventListener('order:created', function (event) {
                     const order = parseEvent(event);
+                    updateRealtimeStats(order.stats);
+                    updateOrderRow(order);
                     showRealtimeToast(
                         'New order received',
                         'Receipt #' + order.id + ' from ' + (order.customer_name || 'customer'),
@@ -1736,6 +1828,8 @@
 
                 source.addEventListener('order:updated', function (event) {
                     const order = parseEvent(event);
+                    updateRealtimeStats(order.stats);
+                    updateOrderRow(order);
                     showRealtimeToast(
                         'Order updated',
                         'Receipt #' + order.id + ' is now ' + (order.status || 'updated'),
@@ -1745,6 +1839,8 @@
 
                 source.addEventListener('customization:created', function (event) {
                     const request = parseEvent(event);
+                    updateRealtimeStats(request.stats);
+                    updateCustomizationRow(request);
                     showRealtimeToast(
                         'New customization request',
                         (request.customer_name || 'A customer') + ' sent a ' + (request.product_type || 'design') + ' request',
@@ -1754,6 +1850,8 @@
 
                 source.addEventListener('customization:updated', function (event) {
                     const request = parseEvent(event);
+                    updateRealtimeStats(request.stats);
+                    updateCustomizationRow(request);
                     showRealtimeToast(
                         'Customization updated',
                         'Request #' + request.id + ' is now ' + (request.status || 'updated'),

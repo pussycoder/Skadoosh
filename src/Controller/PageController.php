@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Entity\CustomizationRequest;
 use App\Repository\OrdersRepository;
 use App\Repository\ProductsRepository;
+use App\Service\RealtimePublisher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -140,7 +141,12 @@ class PageController extends AbstractController
     }
 
     #[Route('/cart/checkout', name: 'app_cart_checkout', methods: ['POST'])]
-    public function checkout(Request $request, ProductsRepository $productsRepository, EntityManagerInterface $entityManager): JsonResponse
+    public function checkout(
+        Request $request,
+        ProductsRepository $productsRepository,
+        EntityManagerInterface $entityManager,
+        RealtimePublisher $realtimePublisher
+    ): JsonResponse
     {
         $user = $this->getUser();
         if (!$user instanceof User) {
@@ -205,6 +211,7 @@ class PageController extends AbstractController
 
         $entityManager->persist($order);
         $entityManager->flush();
+        $realtimePublisher->orderCreated($order);
 
         return $this->json([
             'success' => true,

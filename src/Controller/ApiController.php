@@ -8,6 +8,7 @@ use App\Entity\Products;
 use App\Entity\User;
 use App\Repository\OrdersRepository;
 use App\Repository\ProductsRepository;
+use App\Service\RealtimePublisher;
 use App\Service\VerificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -110,7 +111,8 @@ class ApiController extends AbstractController
     public function createOrder(
         Request $request,
         EntityManagerInterface $entityManager,
-        ProductsRepository $productsRepository
+        ProductsRepository $productsRepository,
+        RealtimePublisher $realtimePublisher
     ): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_CUSTOMER');
@@ -189,6 +191,7 @@ class ApiController extends AbstractController
 
         $entityManager->persist($order);
         $entityManager->flush();
+        $realtimePublisher->orderCreated($order);
 
         return $this->json([
             'success' => true,
@@ -233,7 +236,11 @@ class ApiController extends AbstractController
     }
 
     #[Route('/customer/customization-requests', name: 'api_customer_customization_requests_create', methods: ['POST'])]
-    public function createCustomizationRequest(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function createCustomizationRequest(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        RealtimePublisher $realtimePublisher
+    ): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_CUSTOMER');
         $user = $this->getUser();
@@ -273,6 +280,7 @@ class ApiController extends AbstractController
 
         $entityManager->persist($customizationRequest);
         $entityManager->flush();
+        $realtimePublisher->customizationCreated($customizationRequest);
 
         return $this->json([
             'success' => true,
@@ -284,6 +292,39 @@ class ApiController extends AbstractController
                 'timestamp' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
             ],
         ], 201);
+    }
+
+    #[Route('/customer/device-token', name: 'api_customer_device_token', methods: ['POST'])]
+    public function saveDeviceToken(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_CUSTOMER');
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $payload = json_decode($request->getContent(), true);
+        if (!is_array($payload)) {
+            return $this->json(['success' => false, 'message' => 'Invalid JSON payload'], 400);
+        }
+
+        $token = trim((string) ($payload['token'] ?? ''));
+        $platform = trim((string) ($payload['platform'] ?? 'unknown'));
+        if ($token === '') {
+            return $this->json(['success' => false, 'message' => 'Device token is required'], 422);
+        }
+
+        $user->setFcmToken($token);
+        $user->setFcmPlatform(substr($platform, 0, 30));
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Device token saved',
+            'meta' => [
+                'timestamp' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            ],
+        ]);
     }
 
     #[Route('/register', name: 'api_register', methods: ['POST'])]

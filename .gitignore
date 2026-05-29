@@ -26,4 +26,6 @@ yarn-error.log
 
 ###> firebase service account ###
 /config/firebase/service-account.json
+/docs/*firebase-adminsdk*.json
+/docs/*service-account*.json
 ###< firebase service account ###

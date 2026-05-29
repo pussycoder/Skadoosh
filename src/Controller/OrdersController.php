@@ -7,6 +7,7 @@ use App\Entity\Orders;
 use App\Entity\User;
 use App\Form\OrdersType;
 use App\Repository\OrdersRepository;
+use App\Service\RealtimePublisher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +36,11 @@ final class OrdersController extends AbstractController
     }
 
     #[Route('/new', name: 'app_orders_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        RealtimePublisher $realtimePublisher
+    ): Response
     {
         // Only admin can create orders
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
@@ -57,6 +62,7 @@ final class OrdersController extends AbstractController
 
             $entityManager->persist($order);
             $entityManager->flush();
+            $realtimePublisher->orderCreated($order);
 
             // Log activity
             $this->logActivity('Create', 'Order', $order->getId(), 'Order created: ' . $order->getCustomerName());
@@ -83,7 +89,12 @@ final class OrdersController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_orders_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Orders $order, EntityManagerInterface $entityManager): Response
+    public function edit(
+        Request $request,
+        Orders $order,
+        EntityManagerInterface $entityManager,
+        RealtimePublisher $realtimePublisher
+    ): Response
     {
         // Require authentication (staff or admin)
         $this->denyAccessUnlessGranted('ROLE_USER');
@@ -102,6 +113,7 @@ final class OrdersController extends AbstractController
             }
 
             $entityManager->flush();
+            $realtimePublisher->orderUpdated($order);
 
             // Log activity
             $this->logActivity('Update', 'Order', $order->getId(), 'Order updated: ' . $order->getCustomerName());

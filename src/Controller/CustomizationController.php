@@ -6,6 +6,7 @@ use App\Entity\CustomizationRequest;
 use App\Entity\User;
 use App\Form\CustomizationRequestStatusType;
 use App\Form\CustomizationRequestType;
+use App\Service\RealtimePublisher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class CustomizationController extends AbstractController
 {
     #[Route('', name: 'app_customization_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        RealtimePublisher $realtimePublisher
+    ): Response
     {
         $user = $this->getUser();
         if (!$user instanceof User) {
@@ -54,6 +59,7 @@ class CustomizationController extends AbstractController
 
             $entityManager->persist($customizationRequest);
             $entityManager->flush();
+            $realtimePublisher->customizationCreated($customizationRequest);
 
             $this->addFlash('success', 'Customization request sent. Staff can now review it.');
 
@@ -92,7 +98,12 @@ class CustomizationController extends AbstractController
     }
 
     #[Route('/requests/{id}', name: 'app_customization_requests_show', methods: ['GET', 'POST'])]
-    public function show(Request $request, CustomizationRequest $customizationRequest, EntityManagerInterface $entityManager): Response
+    public function show(
+        Request $request,
+        CustomizationRequest $customizationRequest,
+        EntityManagerInterface $entityManager,
+        RealtimePublisher $realtimePublisher
+    ): Response
     {
         $this->denyUnlessStaffOrAdmin();
 
@@ -106,6 +117,7 @@ class CustomizationController extends AbstractController
             }
 
             $entityManager->flush();
+            $realtimePublisher->customizationUpdated($customizationRequest);
 
             $this->addFlash('success', 'Customization request updated.');
 

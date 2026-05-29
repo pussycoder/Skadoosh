@@ -1674,5 +1674,100 @@
             });
         })();
     </script>
+    <script>
+        (function () {
+            function showRealtimeToast(title, message, href) {
+                let container = document.getElementById('skadoosh-realtime-toasts');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'skadoosh-realtime-toasts';
+                    container.style.cssText = 'position:fixed;right:1rem;bottom:1rem;z-index:9999;display:grid;gap:.75rem;max-width:360px;';
+                    document.body.appendChild(container);
+                }
+
+                const toast = document.createElement(href ? 'a' : 'div');
+                if (href) {
+                    toast.href = href;
+                }
+                toast.style.cssText = 'display:block;background:#ffffff;border-left:5px solid #7a0000;border-radius:14px;box-shadow:0 18px 45px rgba(15,23,42,.22);padding:1rem;text-decoration:none;';
+
+                const toastTitle = document.createElement('strong');
+                toastTitle.style.cssText = 'display:block;color:#0f172a !important;font-weight:800;margin-bottom:.25rem;';
+                toastTitle.textContent = title;
+
+                const toastMessage = document.createElement('span');
+                toastMessage.style.cssText = 'display:block;color:#475569 !important;font-size:.875rem;';
+                toastMessage.textContent = message;
+
+                toast.appendChild(toastTitle);
+                toast.appendChild(toastMessage);
+                container.prepend(toast);
+
+                setTimeout(function () {
+                    toast.remove();
+                }, 8000);
+            }
+
+            function parseEvent(event) {
+                try {
+                    return JSON.parse(event.data || '{}');
+                } catch (error) {
+                    console.warn('[Skadoosh realtime] Invalid SSE payload', error);
+                    return {};
+                }
+            }
+
+            function connectRealtime() {
+                if (!window.EventSource) {
+                    console.warn('[Skadoosh realtime] EventSource is not supported by this browser.');
+                    return;
+                }
+
+                const source = new EventSource('{{ path('app_realtime_stream') }}');
+
+                source.addEventListener('order:created', function (event) {
+                    const order = parseEvent(event);
+                    showRealtimeToast(
+                        'New order received',
+                        'Receipt #' + order.id + ' from ' + (order.customer_name || 'customer'),
+                        '{{ path('app_orders_index') }}'
+                    );
+                });
+
+                source.addEventListener('order:updated', function (event) {
+                    const order = parseEvent(event);
+                    showRealtimeToast(
+                        'Order updated',
+                        'Receipt #' + order.id + ' is now ' + (order.status || 'updated'),
+                        '{{ path('app_orders_index') }}'
+                    );
+                });
+
+                source.addEventListener('customization:created', function (event) {
+                    const request = parseEvent(event);
+                    showRealtimeToast(
+                        'New customization request',
+                        (request.customer_name || 'A customer') + ' sent a ' + (request.product_type || 'design') + ' request',
+                        '{{ path('app_customization_requests_index') }}'
+                    );
+                });
+
+                source.addEventListener('customization:updated', function (event) {
+                    const request = parseEvent(event);
+                    showRealtimeToast(
+                        'Customization updated',
+                        'Request #' + request.id + ' is now ' + (request.status || 'updated'),
+                        '{{ path('app_customization_requests_index') }}'
+                    );
+                });
+
+                source.onerror = function () {
+                    console.warn('[Skadoosh realtime] SSE connection interrupted; browser will retry.');
+                };
+            }
+
+            connectRealtime();
+        })();
+    </script>
 </body>
 </html>
